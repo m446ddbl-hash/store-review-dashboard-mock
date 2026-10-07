@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>店舗週次振り返り | Demo</title>
+<style>
+:root{--ink:#183238;--muted:#718187;--line:#e1e9e7;--paper:#f5f8f6;--card:#fff;--teal:#177c72;--teal-2:#e8f5f1;--amber:#bc7526;--amber-2:#fff4e5;--red:#bb5547;--red-2:#fff0ec;--blue:#4569aa;--shadow:0 10px 30px rgba(20,58,58,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 "Segoe UI","Yu Gothic UI","Meiryo",sans-serif}button,select{font:inherit;color:inherit}button{cursor:pointer}.app{max-width:1440px;margin:0 auto;padding:28px 34px 48px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}.brand{display:flex;gap:12px;align-items:center}.brandmark{width:38px;height:38px;border-radius:12px;background:#173f43;display:grid;place-items:center;color:#d9f18d;font-weight:800;font-size:17px}.brandname{font-size:12px;font-weight:700;letter-spacing:.08em;color:#587075}.topright{display:flex;align-items:center;gap:14px}.demo-pill{font-size:11px;font-weight:700;color:#915716;background:#fff0d5;border:1px solid #f4d9a8;border-radius:999px;padding:6px 10px}.avatar{width:34px;height:34px;background:#dcebe7;border-radius:50%;display:grid;place-items:center;color:#28625b;font-weight:700}.heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:0 0 20px}.eyebrow{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--teal);font-weight:800;margin-bottom:8px}.heading h1{font-size:28px;line-height:1.2;margin:0;letter-spacing:-.02em}.sub{margin:8px 0 0;color:var(--muted);font-size:13px}.controls{display:flex;align-items:center;gap:10px}.segmented{display:flex;padding:4px;border-radius:10px;background:#e8efed}.segmented button{border:0;background:transparent;padding:8px 15px;border-radius:7px;color:#62757a;font-size:12px;font-weight:700}.segmented button.active{background:white;color:#174f49;box-shadow:0 1px 5px #cdd9d5}.select{padding:9px 32px 9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12px;min-width:150px}.main-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.leftcol,.rightcol{display:flex;flex-direction:column;gap:18px}.card{background:var(--card);border:1px solid #e7eeeb;border-radius:14px;box-shadow:var(--shadow)}.cardpad{padding:19px 21px}.cardhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.cardhead h2{margin:0;font-size:15px;letter-spacing:-.01em}.hint{font-size:11px;color:var(--muted)}.summary-card{padding:18px 21px 20px;background:#173f43;color:white;border-radius:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}.summary-card:after{content:"";position:absolute;right:-48px;top:-95px;width:230px;height:230px;border-radius:50%;border:1px solid rgba(227,245,218,.13);box-shadow:0 0 0 30px rgba(227,245,218,.04),0 0 0 65px rgba(227,245,218,.03)}.summary-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;margin-bottom:17px}.summary-top h2{font-size:14px;margin:0}.summary-top span{font-size:11px;color:#b6d0c9}.summary-content{display:grid;grid-template-columns:1fr 1.12fr;gap:28px;position:relative;z-index:1}.summary-text{font-size:13px;color:#e4efec;line-height:1.7}.summary-text strong{color:#d9f18d}.summary-action{font-size:11px;color:#b6d0c9;margin-top:12px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:2px 0 0 13px;border-left:1px solid rgba(255,255,255,.18)}.metric:first-child{border-left:0;padding-left:0}.metric-label{font-size:11px;color:#b6d0c9}.metric-value{font-size:25px;line-height:1.2;font-weight:750;letter-spacing:-.03em;margin:6px 0}.metric-sub{font-size:10px;color:#b6d0c9}.delta.down{color:#ffd08c}.delta.up{color:#bdeb87}.table-wrap{overflow:auto}.heatmap{width:100%;border-collapse:separate;border-spacing:0;min-width:650px}.heatmap th{text-align:right;font-size:10px;font-weight:600;color:#849398;padding:0 12px 10px}.heatmap th:first-child{text-align:left;padding-left:2px}.heatmap td{padding:10px 12px;text-align:right;border-top:1px solid #edf1ef;font-variant-numeric:tabular-nums}.heatmap td:first-child{text-align:left;padding-left:2px}.store-row{cursor:pointer;transition:background .15s}.store-row:hover,.store-row.selected{background:#f4faf8}.store-name{font-weight:700;display:flex;align-items:center;gap:9px}.store-dot{width:8px;height:8px;border-radius:50%;background:#5ca596}.store-row.attention .store-dot{background:#dc9551}.store-meta{display:block;font-weight:400;color:#849398;font-size:10px;margin:2px 0 0 17px}.cellbox{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;min-width:88px}.heat{display:inline-block;width:7px;height:20px;border-radius:4px;background:#d4ebe4}.heat.mid{background:#f4e7bc}.heat.low{background:#f3cfc3}.small-delta{font-size:10px;color:#819096}.small-delta.negative{color:#b65c4e}.small-delta.positive{color:#318b6b}.status{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#eaf5ee;color:#3b8064}.status.warn{background:#fff2df;color:#a86317}.alert-list{display:flex;flex-direction:column;gap:10px}.alert{border:1px solid #f0e8db;background:#fffbf5;border-radius:10px;padding:11px 12px;display:flex;gap:10px}.alert-icon{width:25px;height:25px;flex:none;border-radius:8px;background:#ffe9c9;color:#a55c12;display:grid;place-items:center;font-weight:800}.alert-title{font-size:12px;font-weight:700}.alert-copy{font-size:10px;color:#7f8989;margin-top:3px;line-height:1.55}.alert-metric{font-size:10px;font-weight:700;color:#ad651b;margin-top:5px}.theme-list{display:flex;flex-direction:column;gap:12px}.theme{display:grid;grid-template-columns:75px 1fr 31px;gap:10px;align-items:center}.theme-name{font-size:11px;font-weight:650}.bar{height:7px;border-radius:9px;background:#edf2ef;overflow:hidden}.bar span{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#56aa97,#a6c974)}.theme-count{text-align:right;font-size:10px;color:#879499}.quote{border-top:1px solid #edf1ef;margin-top:15px;padding-top:12px;color:#66787b;font-size:11px;line-height:1.6}.quote b{color:#244d4b}.trend{height:48px;display:flex;align-items:end;gap:5px;margin-top:10px}.trendbar{flex:1;background:#d4e9e2;border-radius:4px 4px 0 0;position:relative;min-height:12px}.trendbar.current{background:#4d9d8d}.trendlabels{display:flex;justify-content:space-between;color:#8a9798;font-size:9px;margin-top:5px}.selected-store{background:#f7faf9;border-radius:10px;padding:12px;margin-top:14px}.selected-store-title{display:flex;justify-content:space-between;font-size:11px;font-weight:700}.selected-store p{font-size:10px;color:#718184;margin:6px 0 0;line-height:1.6}.footer-note{font-size:10px;color:#92a0a0;text-align:right;margin-top:16px}.mobile-only{display:none}
+
+.input-btn{border:1px solid #b8d8ce;background:#fff;color:#176b61;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:750;white-space:nowrap}.input-btn:hover{background:#eaf5f1}.input-dialog{border:0;border-radius:16px;padding:0;width:min(620px,calc(100% - 28px));box-shadow:0 24px 80px rgba(13,42,44,.25);color:var(--ink)}.input-dialog::backdrop{background:rgba(14,38,39,.42);backdrop-filter:blur(3px)}.dialog-body{padding:23px}.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.dialog-head h2{font-size:18px;margin:0}.dialog-head p{font-size:11px;color:var(--muted);margin:5px 0 0}.close-btn{border:0;background:#f1f5f3;color:#687b7d;border-radius:8px;width:30px;height:30px;font-size:17px}.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#587075}.field input,.field select,.field textarea{width:100%;border:1px solid #dbe5e1;border-radius:8px;padding:9px 10px;background:#fff;font-size:13px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#68aa9e;box-shadow:0 0 0 3px #e1f2ed}.field textarea{min-height:90px;resize:vertical}.field.full{grid-column:1/-1}.input-note{background:#f2f7f5;border-radius:9px;padding:10px 12px;margin-top:13px;color:#6b7f80;font-size:10px;line-height:1.6}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.dialog-actions button{border:1px solid #dbe5e1;background:white;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:700}.dialog-actions .primary{background:#176b61;border-color:#176b61;color:white}.dialog-actions .primary:hover{background:#11584f}
+.import-box{border:1px solid #dcebe6;background:#f6faf8;border-radius:11px;padding:13px;margin:0 0 15px}.import-title{font-size:12px;font-weight:750}.import-description{font-size:10px;color:#718184;line-height:1.6;margin:4px 0 10px}.import-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.import-actions button,.file-label{border:1px solid #d4e2dd;background:#fff;border-radius:7px;padding:7px 10px;font-size:10px;font-weight:700;color:#345d59;cursor:pointer}.import-actions .import-primary{background:#176b61;border-color:#176b61;color:#fff}.file-name{font-size:10px;color:#738284}.csv-status{font-size:10px;line-height:1.5;margin-top:8px;color:#638077}.csv-status.error{color:#b34d3d}.csv-text{width:100%;min-height:70px;margin-top:9px;border:1px solid #dce7e2;border-radius:8px;padding:8px;font:10px/1.45 Consolas,monospace;color:#647676;background:#fff}
+@media(max-width:1050px){.main-grid{grid-template-columns:1fr}.rightcol{display:grid;grid-template-columns:1fr 1fr}.summary-content{grid-template-columns:1fr}.app{padding:24px}}
+@media(max-width:650px){.app{padding:18px 14px 34px}.topbar{margin-bottom:22px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:24px}.controls{width:100%;justify-content:space-between}.select{flex:1}.rightcol{display:flex}.metrics{gap:6px}.metric{padding-left:8px}.metric-value{font-size:20px}.metric-label{font-size:10px}.summary-card{padding:16px}.cardpad{padding:16px}.main-grid{gap:14px}.leftcol,.rightcol{gap:14px}.demo-pill{font-size:10px}.sub{max-width:34em}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brandmark">紡</div><div><div class="brandname">RETAIL INSIGHT</div><div style="font-size:10px;color:#91a0a0">店舗運営ダッシュボード</div></div></div>
+    <div class="topright"><span class="demo-pill">DEMO · 架空データ</span><div class="avatar">運</div></div>
+  </header>
+  <section class="heading">
+    <div><div class="eyebrow">STORE REVIEW</div><h1>店舗週次振り返り</h1><p class="sub">数字と現場の声から、店舗の変化をひと目で確認</p></div>
+    <div class="controls"><button class="input-btn" id="openInput" type="button">＋ データ入力</button><div class="segmented" role="group" aria-label="集計期間"><button class="active" data-mode="week">週次</button><button data-mode="month">月次</button></div><select class="select" id="periodSelect" aria-label="対象期間"></select></div>
+  </section>
+  <main class="main-grid">
+    <div class="leftcol">
+      <section class="summary-card">
+        <div class="summary-top"><h2 id="summaryTitle">今週の全店サマリー</h2><span id="summaryRange">9月 第4週</span></div>
+        <div class="summary-content">
+          <div><div class="summary-text" id="summaryText"></div><div class="summary-action" id="summaryAction"></div></div>
+          <div class="metrics" id="metrics"></div>
+        </div>
+      </section>
+      <section class="card cardpad">
+        <div class="cardhead"><h2>店舗別 KPI ヒートマップ</h2><span class="hint" id="heatHint">前週比を含む · 店舗を選択して詳細を見る</span></div>
+        <div class="table-wrap"><table class="heatmap"><thead><tr><th>店舗</th><th>客数</th><th>買上率</th><th>客単価</th><th>状態</th></tr></thead><tbody id="storeRows"></tbody></table></div>
+        <div class="footer-note">色と要注意判定は、デモ用の仮ルールです。</div>
+      </section>
+      <section class="card cardpad">
+        <div class="cardhead"><h2>日報コメントの傾向</h2><span class="hint" id="commentHint">対象期間のサンプルコメント</span></div>
+        <div class="theme-list" id="themes"></div>
+        <div class="quote" id="quote"></div>
+      </section>
+    </div>
+    <aside class="rightcol">
+      <section class="card cardpad">
+        <div class="cardhead"><h2>確認したい店舗</h2><span class="hint" id="alertCount"></span></div>
+        <div class="alert-list" id="alerts"></div>
+        <div class="selected-store" id="selectedStore"></div>
+      </section>
+      <section class="card cardpad">
+        <div class="cardhead"><h2>4週間の推移</h2><span class="hint">全店客数</span></div>
+        <div class="trend" id="trend"></div><div class="trendlabels"><span>第1週</span><span>第2週</span><span>第3週</span><span>第4週</span></div>
+        <div style="font-size:10px;color:#809092;margin-top:13px" id="trendNote"></div>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<dialog class="input-dialog" id="inputDialog" aria-labelledby="inputTitle">
+  <div class="dialog-body">
+    <div class="dialog-head"><div><h2 id="inputTitle">週次データを入力</h2><p>店舗と週を選び、数値や日報コメントを編集できます。</p></div><button class="close-btn" id="closeInput" type="button" aria-label="閉じる">×</button></div>
+    <section class="import-box">
+      <div class="import-title">スプレッドシートから読み込む</div>
+      <div class="import-description">Googleスプレッドシートは「ファイル → ダウンロード → カンマ区切り形式（.csv）」で保存してね。テンプレートを使うと列を合わせやすいよ。</div>
+      <div class="import-actions"><button id="downloadCsvTemplate" type="button">入力用CSVをダウンロード</button><label class="file-label" for="csvFile">CSVファイルを選ぶ</label><input id="csvFile" type="file" accept=".csv,text/csv" hidden><span class="file-name" id="csvFileName">ファイル未選択</span><button class="import-primary" id="importCsv" type="button">CSVを反映</button></div>
+      <textarea id="csvText" class="csv-text" placeholder="テンプレートのCSVを選ぶと、ここに内容が入ります。"></textarea><div class="csv-status" id="csvStatus" role="status">1行につき1店舗×1週間分。読み込むと表示中のデータと置き換わります。</div>
+    </section>
+    <div class="input-grid">
+      <div class="field"><label for="editStore">店舗</label><select id="editStore"></select></div>
+      <div class="field"><label for="editWeek">週</label><select id="editWeek"></select></div>
+      <div class="field"><label for="editVisits">客数</label><input id="editVisits" type="number" min="0" step="1"></div>
+      <div class="field"><label for="editBuyers">購入客数</label><input id="editBuyers" type="number" min="0" step="1"></div>
+      <div class="field"><label for="editSales">売上（円）</label><input id="editSales" type="number" min="0" step="1000"></div>
+      <div class="field full"><label for="editComments">日報コメント（1行に1件）</label><textarea id="editComments" placeholder="例：人気サイズが夕方に欠品した"></textarea></div>
+    </div>
+    <div class="input-note">CSVの読み込みと手入力はこのブラウザー内だけで処理され、外部には送信されません。ページを再読み込みすると、最初のサンプルデータに戻ります。</div>
+    <div class="dialog-actions"><button id="cancelInput" type="button">キャンセル</button><button class="primary" id="applyInput" type="button">画面に反映</button></div>
+  </div>
+</dialog>
+<script>
+const weeks=[
+ {label:'9月 第1週',range:'9/1 – 9/7'},
+ {label:'9月 第2週',range:'9/8 – 9/14'},
+ {label:'9月 第3週',range:'9/15 – 9/21'},
+ {label:'9月 第4週',range:'9/22 – 9/28'}
+];
+const stores=[
+ {id:'A',name:'店舗A',area:'北エリア',weeks:[
+  {visits:2500,buyers:515,sales:3920000,comments:[['品揃え','秋物の色を見比べたいという声が多い'],['サイズ','試着したら丈が少し長かった'] ]},
+  {visits:2650,buyers:552,sales:4230000,comments:[['品揃え','秋物の色違いを見たいという声'],['接客','用途に合わせた提案が参考になった'] ]},
+  {visits:2610,buyers:550,sales:4180000,comments:[['サイズ','袖丈の選択肢がほしいという声'],['在庫','人気色のサイズ欠けがあった'] ]},
+  {visits:2450,buyers:498,sales:3850000,comments:[['品揃え','秋物の新色を試したいという声'],['サイズ','丈の短い商品もあるとうれしい'] ]}
+ ]},
+ {id:'B',name:'店舗B',area:'北エリア',weeks:[
+  {visits:2140,buyers:338,sales:2500000,comments:[['在庫','人気サイズが早めに欠品した'],['価格','価格帯を比較してから購入したい'] ]},
+  {visits:2200,buyers:365,sales:2700000,comments:[['在庫','定番商品のサイズ欠けが気になる'],['接客','試着案内が分かりやすかった'] ]},
+  {visits:2250,buyers:366,sales:2720000,comments:[['サイズ','サイズ展開を増やしてほしい'],['在庫','夕方に人気色が欠品していた'] ]},
+  {visits:1980,buyers:292,sales:2160000,comments:[['サイズ','合うサイズが見つからなかった'],['在庫','定番色の在庫が少なかった'],['価格','価格を見比べて検討したい'] ]}
+ ]},
+ {id:'C',name:'店舗C',area:'中部エリア',weeks:[
+  {visits:2290,buyers:484,sales:3775000,comments:[['接客','組み合わせの提案が好評'],['品揃え','通勤向けの商品を見たい'] ]},
+  {visits:2360,buyers:520,sales:4056000,comments:[['接客','コーディネート提案が好評'],['サイズ','試着できる見本があって助かった'] ]},
+  {visits:2150,buyers:452,sales:3490000,comments:[['品揃え','通勤と休日の両方で使える服がほしい'],['接客','用途別の提案が分かりやすかった'] ]},
+  {visits:2120,buyers:471,sales:3660000,comments:[['接客','スタッフの提案で購入を決めた'],['品揃え','秋の通勤着をもっと見たい'] ]}
+ ]},
+ {id:'D',name:'店舗D',area:'関西エリア',weeks:[
+  {visits:1880,buyers:300,sales:2250000,comments:[['在庫','色違いを取り寄せたい'],['接客','混雑時に相談しづらかった'] ]},
+  {visits:1950,buyers:314,sales:2400000,comments:[['接客','混雑時の案内に時間がかかった'],['価格','セール時期を知りたい'] ]},
+  {visits:1920,buyers:293,sales:2300000,comments:[['接客','夕方に試着の待ち時間があった'],['品揃え','小物の種類を増やしてほしい'] ]},
+  {visits:1650,buyers:231,sales:1770000,comments:[['接客','夕方に試着の待ち時間が長かった'],['在庫','売れ筋のサイズが欠品していた'] ]}
+ ]}
+];
+let mode='week', selectedWeek=3, selectedStore='B';
+const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const yen=n=>'¥'+Math.round(n).toLocaleString('ja-JP');
+const num=n=>Math.round(n).toLocaleString('ja-JP');
+const pct=n=>(n*100).toFixed(1)+'%';
+const aggregate=(arr)=>arr.reduce((a,b)=>({visits:a.visits+b.visits,buyers:a.buyers+b.buyers,sales:a.sales+b.sales}),{visits:0,buyers:0,sales:0});
+const metric=(s,idx)=>mode==='week'?s.weeks[idx]:aggregate(s.weeks);
+const rate=m=>m.visits?m.buyers/m.visits:0;
+const ticket=m=>m.buyers?m.sales/m.buyers:0;
+const allMetric=(idx)=>aggregate(stores.map(s=>s.weeks[idx]));
+function setOptions(){const select=document.getElementById('periodSelect');select.innerHTML='';if(mode==='week'){weeks.forEach((w,i)=>{const o=document.createElement('option');o.value=i;o.textContent=w.label;select.appendChild(o)});select.value=selectedWeek;}else{const o=document.createElement('option');o.value='sep';o.textContent='2026年 9月';select.appendChild(o)}}
+function getSummary(){
+ const current=mode==='week'?allMetric(selectedWeek):aggregate(stores.flatMap(s=>s.weeks));
+ const prev=mode==='week'&&selectedWeek>0?allMetric(selectedWeek-1):null;
+ const deltaVisits=prev?(current.visits-prev.visits)/prev.visits:null;
+ const deltaRate=prev?rate(current)-rate(prev):null;
+ const deltaTicket=prev?(ticket(current)-ticket(prev))/ticket(prev):null;
+ const r=rate(current),t=ticket(current);
+ document.getElementById('summaryTitle').textContent=mode==='week'?'今週の全店サマリー':'9月の全店サマリー';
+ document.getElementById('summaryRange').textContent=mode==='week'?weeks[selectedWeek].range:'4週分の月次集計';
+ const attention=attentionList();
+ const summaryText=mode==='week'?(selectedWeek===0?'比較用の前週データがありません。今週の数値と現場の声を確認します。':attention.length?'変化が見られる'+attention.map(a=>a.name).join('・')+'の数値と日報コメントを確認したい週です。':'大きな変化は見られません。KPIと日報コメントを合わせて確認します。'):'4週間を通じた店舗ごとの動きを表示しています。客数・買上率の推移と現場の声を合わせて、月内の変化を振り返ります。';
+ document.getElementById('summaryText').textContent=summaryText;
+ document.getElementById('summaryAction').textContent=mode==='week'?'デモ用の要約です。実際の判断基準は未設定です。':'4週分を合算したデモ用の月次サマリーです。';
+ const sub=(v,cls)=>v===null?'<span class="metric-sub">期間内の集計</span>':'<span class="metric-sub delta '+cls+'">前週比 '+v+'</span>';
+ document.getElementById('metrics').innerHTML=
+  '<div class="metric"><div class="metric-label">客数</div><div class="metric-value">'+num(current.visits)+'</div>'+sub(deltaVisits===null?null:(deltaVisits>=0?'+':'')+(deltaVisits*100).toFixed(1)+'%',deltaVisits<0?'down':'up')+'</div>'+
+  '<div class="metric"><div class="metric-label">買上率</div><div class="metric-value">'+pct(r)+'</div>'+sub(deltaRate===null?null:(deltaRate>=0?'+':'')+(deltaRate*100).toFixed(1)+'pt',deltaRate<0?'down':'up')+'</div>'+
+  '<div class="metric"><div class="metric-label">客単価</div><div class="metric-value">'+yen(t)+'</div>'+sub(deltaTicket===null?null:(deltaTicket>=0?'+':'')+(deltaTicket*100).toFixed(1)+'%',deltaTicket<0?'down':'up')+'</div>';
+}
+function changeFor(s,idx,key){if(idx===0)return null;const now=s.weeks[idx],old=s.weeks[idx-1];if(!old.visits||!old.buyers)return null;if(key==='visits')return (now.visits-old.visits)/old.visits;if(key==='rate')return rate(now)-rate(old);return (ticket(now)-ticket(old))/ticket(old)}
+function attentionList(){const end=mode==='week'?selectedWeek:3,start=mode==='week'?end-1:0;if(start<0)return [];const out=[];stores.forEach(s=>{const prev=s.weeks[start],now=s.weeks[end];if(!prev||!now||!prev.visits||!prev.buyers)return;const visitDelta=(now.visits-prev.visits)/prev.visits,rateDelta=rate(now)-rate(prev),reasons=[];if(visitDelta<=-.08)reasons.push('客数 '+num(now.visits)+'人（前期比 '+(visitDelta*100).toFixed(1)+'%）');if(rateDelta<=-.012)reasons.push('買上率 '+pct(rate(now))+'（前期比 '+(rateDelta*100).toFixed(1)+'pt）');if(reasons.length)out.push({id:s.id,name:s.name,area:s.area,reasons});});return out}
+function fmtDelta(v,key){if(v===null)return '<span class="small-delta">—</span>';if(key==='rate')return '<span class="small-delta '+(v<0?'negative':'positive')+'">'+(v>=0?'+':'')+(v*100).toFixed(1)+'pt</span>';return '<span class="small-delta '+(v<0?'negative':'positive')+'">'+(v>=0?'+':'')+(v*100).toFixed(1)+'%</span>'}
+function cell(value,key,delta){let level='';if(delta!==null&&delta<-.07)level='low';else if(delta!==null&&delta<-.025)level='mid';return '<span class="cellbox"><span class="heat '+level+'"></span>'+value+'</span>'+(mode==='week'?fmtDelta(delta,key):'')}
+function renderStores(){const tbody=document.getElementById('storeRows');tbody.innerHTML='';const alertIds=attentionList().map(a=>a.id);stores.forEach(s=>{const m=metric(s,selectedWeek),idx=selectedWeek,cv=mode==='week'?changeFor(s,idx,'visits'):null,cr=mode==='week'?changeFor(s,idx,'rate'):null,ct=mode==='week'?changeFor(s,idx,'ticket'):null;const alert=alertIds.includes(s.id);const tr=document.createElement('tr');tr.className='store-row'+(alert?' attention':'')+(selectedStore===s.id?' selected':'');tr.dataset.id=s.id;tr.innerHTML='<td><div class="store-name"><span class="store-dot"></span>'+escapeHtml(s.name)+'</div><span class="store-meta">'+escapeHtml(s.area)+'</span></td><td>'+cell(num(m.visits),'visits',cv)+'</td><td>'+cell(pct(rate(m)),'rate',cr)+'</td><td>'+cell(yen(ticket(m)),'ticket',ct)+'</td><td><span class="status '+(alert?'warn':'')+'">'+(alert?'確認候補':'安定')+'</span></td>';tr.addEventListener('click',()=>{selectedStore=s.id;renderStores();renderSelected()});tbody.appendChild(tr)});document.getElementById('heatHint').textContent=mode==='week'?'前週比を表示 · 店舗を選択して詳細を見る':'4週分を集計 · 店舗を選択して詳細を見る'}
+function renderAlerts(){const host=document.getElementById('alerts'),list=attentionList();document.getElementById('alertCount').textContent=list.length+'件';if(!list.length){host.innerHTML='<div class="alert-copy">'+(mode==='week'&&selectedWeek===0?'比較できる前週データがありません。':'この期間に仮条件へ該当する店舗はありません。')+'</div>';return}host.innerHTML=list.map(a=>'<div class="alert" data-id="'+a.id+'"><div class="alert-icon">!</div><div><div class="alert-title">'+escapeHtml(a.name)+' · 確認候補</div><div class="alert-copy">'+escapeHtml(a.area)+' · 客数や買上率に変化があります。</div><div class="alert-metric">'+a.reasons.map(escapeHtml).join(' / ')+'</div></div></div>').join('');host.querySelectorAll('.alert').forEach(el=>el.addEventListener('click',()=>{selectedStore=el.dataset.id;renderStores();renderSelected()}))}
+function allComments(){const out=[];stores.forEach(s=>{const from=mode==='week'?[s.weeks[selectedWeek]]:s.weeks;from.forEach(w=>w.comments.forEach(c=>out.push({store:s.name,theme:c[0],text:c[1]})))});return out}
+function renderThemes(){const comments=allComments(),counts={};comments.forEach(c=>counts[c.theme]=(counts[c.theme]||0)+1);const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4),max=sorted[0]?sorted[0][1]:1;document.getElementById('themes').innerHTML=sorted.map(([name,count])=>'<div class="theme"><div class="theme-name">'+name+'</div><div class="bar"><span style="width:'+Math.max(18,count/max*100)+'%"></span></div><div class="theme-count">'+count+'件</div></div>').join('');document.getElementById('commentHint').textContent=mode==='week'?'今週の架空日報 · '+comments.length+'件':'4週分の架空日報 · '+comments.length+'件';const selected=comments.find(c=>c.store===stores.find(s=>s.id===selectedStore).name);document.getElementById('quote').innerHTML=selected?'<b>'+escapeHtml(selected.store)+'の声</b>：「'+escapeHtml(selected.text)+'」':'コメントはサンプルです。実際の分類基準は未設定です。'}
+function renderSelected(){const s=stores.find(x=>x.id===selectedStore);const m=metric(s,selectedWeek);document.getElementById('selectedStore').innerHTML='<div class="selected-store-title"><span>'+escapeHtml(s.name)+' · '+escapeHtml(s.area)+'</span><span>'+ (mode==='week'?weeks[selectedWeek].label:'9月')+'</span></div><p>客数 '+num(m.visits)+'人、買上率 '+pct(rate(m))+'、客単価 '+yen(ticket(m))+'。日報の声と一緒に見るためのデモ表示です。</p>';renderThemes()}
+function renderTrend(){const totals=weeks.map((_,i)=>allMetric(i).visits),max=Math.max(...totals);document.getElementById('trend').innerHTML=totals.map((v,i)=>'<div class="trendbar '+(i===selectedWeek?'current':'')+'" style="height:'+Math.max(20,v/max*100)+'%" title="'+weeks[i].label+' '+num(v)+'人"></div>').join('');document.getElementById('trendNote').textContent=mode==='month'?'週ごとの客数推移。月次の合計は左のサマリーに表示。':'各週の全店客数。選択週を強調表示。'}
+function render(){setOptions();getSummary();renderStores();renderAlerts();renderSelected();renderTrend()}
+
+function parseCSV(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}else if(ch===','&&!quoted){row.push(cell);cell=''}else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(x=>String(x).trim()!==''))rows.push(row);row=[];cell=''}else cell+=ch}row.push(cell);if(row.some(x=>String(x).trim()!==''))rows.push(row);return rows}
+function csvNumber(value){const n=Number(String(value||'').replace(/[￥¥,\s]/g,''));return Number.isFinite(n)?n:NaN}
+function csvWeek(value){const text=String(value||'').trim();let m=text.match(/第?\s*([1-4])\s*週/);if(!m)m=text.match(/W0?([1-4])/i);if(!m&&/^[1-4]$/.test(text))m=[null,text];return m?Number(m[1])-1:-1}
+function downloadCSVTemplate(){const quote=value=>'"'+String(value).replace(/"/g,'""')+'"';const lines=[['週','店舗','エリア','客数','購入客数','売上','日報コメント']];stores.forEach(store=>store.weeks.forEach((r,i)=>lines.push([weeks[i].label,store.name,store.area,r.visits,r.buyers,r.sales,r.comments.map(c=>c[1]).join(' / ')])));const csv='\uFEFF'+lines.map(row=>row.map(quote).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='store-review-template.csv';a.click();URL.revokeObjectURL(url)}
+function importCSV(){const status=document.getElementById('csvStatus');try{const text=document.getElementById('csvText').value.replace(/^\uFEFF/,'');const rows=parseCSV(text);if(rows.length<2)throw new Error('データ行がありません。');const headers=rows[0].map(x=>String(x).trim());const find=names=>headers.findIndex(h=>names.includes(h));const ix={week:find(['週','期間']),store:find(['店舗','店舗名']),area:find(['エリア','地区']),visits:find(['客数','来店客数']),buyers:find(['購入客数','買上客数','購入数']),sales:find(['売上','売上金額']),comments:find(['日報コメント','コメント','店舗コメント'])};for(const key of ['week','store','visits','buyers','sales'])if(ix[key]<0)throw new Error('必要な列が見つかりません。テンプレートの列名を使ってね。');const grouped=new Map(),seen=new Set();for(let r=1;r<rows.length;r++){const values=rows[r];if(!values||values.every(v=>String(v).trim()===''))continue;const weekIndex=csvWeek(values[ix.week]),name=String(values[ix.store]||'').trim(),area=ix.area>=0?String(values[ix.area]||'').trim():'未設定',visits=csvNumber(values[ix.visits]),buyers=csvNumber(values[ix.buyers]),sales=csvNumber(values[ix.sales]);if(weekIndex<0||!name||![visits,buyers,sales].every(Number.isFinite)||visits<0||buyers<0||buyers>visits||sales<0)throw new Error((r+1)+'行目を確認してね。週・店舗名・数値に不備があります。');const key=name+'|'+weekIndex;if(seen.has(key))throw new Error(name+'の同じ週が複数あります。1店舗×1週につき1行にしてね。');seen.add(key);if(!grouped.has(name))grouped.set(name,{name,area,weeks:Array.from({length:4},()=>({visits:0,buyers:0,sales:0,comments:[]}))});const comment=ix.comments>=0?String(values[ix.comments]||'').trim():'';grouped.get(name).weeks[weekIndex]={visits,buyers,sales,comments:comment?[...comment.split(/\s+\/\s+|\n/).filter(Boolean).map(t=>[themeFor(t),t])]:[]}}
+if(!grouped.size)throw new Error('取り込めるデータ行がありません。');const imported=Array.from(grouped.values()).map((x,i)=>({id:'I'+(i+1),name:x.name,area:x.area,weeks:x.weeks}));stores.splice(0,stores.length,...imported);selectedStore=stores[0].id;selectedWeek=3;mode='week';document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b.dataset.mode==='week'));render();status.className='csv-status';status.textContent=imported.length+'店舗分を読み込んだよ。週次・月次の表示に反映済み。';document.getElementById('inputDialog').close()}catch(error){status.className='csv-status error';status.textContent=error.message}}
+function populateInputOptions(){
+ const storeSelect=document.getElementById('editStore');
+ storeSelect.innerHTML=stores.map(x=>'<option value="'+x.id+'">'+escapeHtml(x.name)+' · '+escapeHtml(x.area)+'</option>').join('');
+ const weekSelect=document.getElementById('editWeek');
+ weekSelect.innerHTML=weeks.map((w,i)=>'<option value="'+i+'">'+w.label+'</option>').join('');
+}
+function openInputDialog(){
+ populateInputOptions();
+ document.getElementById('editStore').value=selectedStore;
+ document.getElementById('editWeek').value=String(selectedWeek);
+ loadInputRecord();
+ document.getElementById('inputDialog').showModal();
+}
+function loadInputRecord(){
+ const store=stores.find(x=>x.id===document.getElementById('editStore').value)||stores[0];
+ const idx=Number(document.getElementById('editWeek').value||0);
+ const record=store.weeks[idx];
+ document.getElementById('editVisits').value=record.visits;
+ document.getElementById('editBuyers').value=record.buyers;
+ document.getElementById('editSales').value=record.sales;
+ document.getElementById('editComments').value=record.comments.map(c=>c[1]).join('\n');
+}
+function themeFor(text){
+ if(/サイズ|丈|試着/.test(text))return 'サイズ';
+ if(/在庫|欠品|取り寄せ/.test(text))return '在庫';
+ if(/価格|値段|セール/.test(text))return '価格';
+ if(/接客|スタッフ|案内|提案/.test(text))return '接客';
+ if(/色|品揃え|商品/.test(text))return '品揃え';
+ return 'その他';
+}
+function applyInput(){
+ const store=stores.find(x=>x.id===document.getElementById('editStore').value);
+ const idx=Number(document.getElementById('editWeek').value);
+ const visits=Number(document.getElementById('editVisits').value);
+ const buyers=Number(document.getElementById('editBuyers').value);
+ const sales=Number(document.getElementById('editSales').value);
+ if(!store||![visits,buyers,sales].every(Number.isFinite)||visits<0||buyers<0||sales<0||buyers>visits){alert('数値を確認してね。購入客数は客数以下で入力してください。');return}
+ const comments=document.getElementById('editComments').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>[themeFor(x),x]);
+ store.weeks[idx]={visits,buyers,sales,comments};
+ selectedStore=store.id;selectedWeek=idx;
+ if(mode==='week')document.getElementById('periodSelect').value=String(idx);
+ render();
+ document.getElementById('inputDialog').close();
+}
+document.getElementById('downloadCsvTemplate').addEventListener('click',downloadCSVTemplate);
+document.getElementById('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;document.getElementById('csvFileName').textContent=file.name;document.getElementById('csvText').value=await file.text();document.getElementById('csvStatus').className='csv-status';document.getElementById('csvStatus').textContent='ファイルを読み込んだよ。「CSVを反映」を押してね。'});
+document.getElementById('importCsv').addEventListener('click',importCSV);
+document.getElementById('openInput').addEventListener('click',openInputDialog);
+document.getElementById('closeInput').addEventListener('click',()=>document.getElementById('inputDialog').close());
+document.getElementById('cancelInput').addEventListener('click',()=>document.getElementById('inputDialog').close());
+document.getElementById('editStore').addEventListener('change',loadInputRecord);
+document.getElementById('editWeek').addEventListener('change',loadInputRecord);
+document.getElementById('applyInput').addEventListener('click',applyInput);
+document.querySelectorAll('.segmented button').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b===btn));render()}));
+document.getElementById('periodSelect').addEventListener('change',e=>{if(mode==='week')selectedWeek=Number(e.target.value);render()});
+render();
+</script>
+</body>
+</html>
