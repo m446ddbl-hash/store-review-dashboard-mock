@@ -13,6 +13,7 @@
 @media(max-width:1050px){.main-grid{grid-template-columns:1fr}.rightcol{display:grid;grid-template-columns:1fr 1fr}.summary-content{grid-template-columns:1fr}.app{padding:24px}}
 @media(max-width:650px){.app{padding:18px 14px 34px}.topbar{margin-bottom:22px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:24px}.controls{width:100%;justify-content:space-between;flex-wrap:wrap}.period-controls{display:flex;gap:5px;width:100%}.period-select{flex:1;min-width:0;padding:9px 20px 9px 8px}.select{flex:1}.rightcol{display:flex}.metrics{gap:6px}.metric{padding-left:8px}.metric-value{font-size:20px}.metric-label{font-size:10px}.summary-card{padding:16px}.cardpad{padding:16px}.main-grid{gap:14px}.leftcol,.rightcol{gap:14px}.demo-pill{font-size:10px}.sub{max-width:34em}}
 .period-controls{display:flex;gap:6px}.period-select{min-width:78px;padding:9px 22px 9px 8px;font-size:11px}.sync-status{font-size:10px;color:#638077;white-space:nowrap}.sync-status.error{color:#b34d3d}
+.dialog-actions .clear-input{margin-right:auto;border-color:#e9c5bd;color:#a5483c;background:#fff8f6}.dialog-actions .clear-input:hover{background:#fff0ec}
 </style>
 </head>
 <body>
@@ -85,8 +86,8 @@
       <div class="field"><label for="editSales">売上（円）</label><input id="editSales" type="number" min="0" step="1000"></div>
       <div class="field full"><label for="editComments">日報コメント（1行に1件）</label><textarea id="editComments" placeholder="例：人気サイズが夕方に欠品した"></textarea></div>
     </div>
-    <div class="input-note">CSV・Excelの読み込みと手入力はこのブラウザー内で処理され、選んだデータは外部に送信されません。ページを再読み込みすると、最初のサンプルデータに戻ります。</div>
-    <div class="dialog-actions"><button id="cancelInput" type="button">キャンセル</button><button class="primary" id="applyInput" type="button">画面に反映</button></div>
+    <div class="input-note">入力データは共有デモ用のSupabaseに保存され、再読み込み後も表示されます。公開サイトの利用者間で共有されるため、架空データを使ってください。</div>
+    <div class="dialog-actions"><button class="clear-input" id="clearInput" type="button">この週の入力をクリア</button><button id="cancelInput" type="button">キャンセル</button><button class="primary" id="applyInput" type="button">画面に反映</button></div>
   </div>
 </dialog>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -342,6 +343,21 @@ async function applyInput(){
  document.getElementById('inputDialog').close();
  setSyncStatus('Supabaseへ保存中');try{await saveState();setSyncStatus('Supabaseに保存済み')}catch(error){console.warn('Supabase save failed:',error);setSyncStatus('保存失敗 · 接続設定を確認',true)}
 }
+async function clearInputRecord(){
+ const store=stores.find(x=>x.id===document.getElementById('editStore').value);
+ const year=Number(document.getElementById('editYear').value),month=Number(document.getElementById('editMonth').value),week=Number(document.getElementById('editWeek').value);
+ if(!store||!Number.isInteger(year)||year<2000||year>2100||!Number.isInteger(month)||month<1||month>12||!Number.isInteger(week)||week<1||week>5){alert('店舗・年・月・週を確認してね。');return}
+ const idx=periodIndex(year,month,week);
+ const prompt=idx>=0?`${store.name}の${year}年${month}月 第${week}週のデータ（数値とコメント）をクリアして共有データに保存します。よろしいですか？`:'入力中の数値とコメントをクリアしますか？';
+ if(!confirm(prompt))return;
+ document.getElementById('editVisits').value='';document.getElementById('editBuyers').value='';document.getElementById('editSales').value='';document.getElementById('editComments').value='';
+ if(idx<0)return;
+ const previous=store.weeks[idx];
+ store.weeks[idx]={visits:0,buyers:0,sales:0,comments:[]};
+ selectedStore=store.id;selectedWeek=idx;selectedYear=year;selectedMonth=month;render();setSyncStatus('Supabaseへ保存中');
+ try{await saveState();setSyncStatus('入力をクリアしてSupabaseに保存済み');document.getElementById('inputDialog').close()}
+ catch(error){console.warn('Supabase clear failed:',error);store.weeks[idx]=previous;render();setSyncStatus('クリア保存失敗 · 接続設定を確認',true);alert('保存できなかったので、元のデータに戻しました。')}
+}
 document.getElementById('commentScopeSelect').addEventListener('change',()=>{const scope=document.getElementById('commentScopeSelect').value;if(scope!=='all'){selectedStore=scope;renderStores();renderSelected()}else renderThemes()});
 document.getElementById('chartMetricSelect').addEventListener('change',renderStoreChart);
 document.getElementById('downloadCsvTemplate').addEventListener('click',downloadCSVTemplate);
@@ -355,6 +371,7 @@ document.getElementById('cancelInput').addEventListener('click',()=>document.get
 document.getElementById('editStore').addEventListener('change',loadInputRecord);
 ['editYear','editMonth','editWeek'].forEach(id=>document.getElementById(id).addEventListener('change',loadInputRecord));
 document.getElementById('applyInput').addEventListener('click',applyInput);
+document.getElementById('clearInput').addEventListener('click',clearInputRecord);
 document.querySelectorAll('.segmented button').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('.segmented button').forEach(b=>b.classList.toggle('active',b===btn));render()}));
 document.getElementById('yearSelect').addEventListener('change',e=>{selectedYear=Number(e.target.value);const months=[...new Set(weeks.filter(w=>w.year===selectedYear).map(w=>w.month))];if(!months.includes(selectedMonth))selectedMonth=months[months.length-1];const indexes=monthIndexes(selectedYear,selectedMonth);if(indexes.length)selectedWeek=indexes[indexes.length-1];render()});
 document.getElementById('monthSelect').addEventListener('change',e=>{selectedMonth=Number(e.target.value);const indexes=monthIndexes(selectedYear,selectedMonth);if(indexes.length)selectedWeek=indexes[indexes.length-1];render()});
@@ -363,7 +380,5 @@ render();initializeDatabase();
 </script>
 </body>
 </html>
-
-
 
 
