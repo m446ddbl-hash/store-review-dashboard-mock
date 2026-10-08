@@ -14,20 +14,6 @@
   <header class="heading"><h1>商品データ管理</h1><p>週次販売数とSKU情報を登録します。</p></header>
 
   <section class="card">
-    <h2>週次販売数を登録</h2>
-    <p class="hint">販売数を入力すると、対象SKUの現在庫を減らしてSupabaseへ保存します。同じ対象日の入力は上書き扱いです。</p>
-    <form id="salesForm">
-      <div class="form-grid">
-        <div class="field"><label for="salesStore">店舗</label><select id="salesStore" required></select></div>
-        <div class="field"><label for="salesSku">商品・SKU</label><select id="salesSku" required></select></div>
-        <div class="field"><label for="salesDate">週次報告日</label><input id="salesDate" type="date" value="2026-10-07" required></div>
-        <div class="field"><label for="salesUnits">販売本数</label><input id="salesUnits" type="number" min="0" step="1" value="0" required></div>
-      </div>
-      <div class="actions"><button class="primary" type="submit" id="salesSubmit">販売数を保存</button><span class="message" id="salesMessage" aria-live="polite"></span></div>
-    </form>
-  </section>
-
-  <section class="card">
     <h2>CSVから取り込む</h2>
     <p class="hint">文字コードUTF-8のCSVを選んで取り込みます。販売数は既存SKUの更新、新規SKUは別のCSVで登録します。</p>
     <div class="csv-grid">
@@ -49,6 +35,20 @@
       </div>
     </div>
     <div class="csv-note">店舗コードは A〜D。販売数CSVの列は「店舗コード、SKUコード、週次報告日、販売本数」、SKU CSVは「店舗コード、カテゴリ、SKUコード、商品名、色・サイズ、販売開始時の在庫数、現在庫数」です。</div>
+  </section>
+
+  <section class="card">
+    <h2>週次販売数を登録</h2>
+    <p class="hint">販売数を入力すると、対象SKUの現在庫を減らしてSupabaseへ保存します。同じ対象日の入力は上書き扱いです。</p>
+    <form id="salesForm">
+      <div class="form-grid">
+        <div class="field"><label for="salesStore">店舗</label><select id="salesStore" required></select></div>
+        <div class="field"><label for="salesSku">商品・SKU</label><select id="salesSku" required></select></div>
+        <div class="field"><label for="salesDate">週次報告日</label><input id="salesDate" type="date" value="2026-10-07" required></div>
+        <div class="field"><label for="salesUnits">販売本数</label><input id="salesUnits" type="number" min="0" step="1" value="0" required></div>
+      </div>
+      <div class="actions"><button class="primary" type="submit" id="salesSubmit">販売数を保存</button><span class="message" id="salesMessage" aria-live="polite"></span></div>
+    </form>
   </section>
 
   <section class="card">
