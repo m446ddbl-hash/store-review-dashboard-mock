@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商品データ管理 | No.10</title>
+<style>
+:root{--ink:#17363a;--muted:#6d7c7e;--line:#e4eae7;--paper:#f5f7f4;--card:#fff;--teal:#28776d;--teal-light:#eaf4f0;--orange:#a85e19;--shadow:0 8px 24px rgba(29,62,58,.06)}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.55 "Segoe UI","Yu Gothic UI","Meiryo",sans-serif}button,input,select{font:inherit;color:inherit}.app{max-width:1180px;margin:auto;padding:28px 28px 44px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.breadcrumb{font-size:12px;color:var(--muted)}.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--teal);text-decoration:underline}.badges{display:flex;gap:8px;align-items:center}.status,.demo{display:inline-flex;border-radius:999px;padding:6px 10px;font-size:10px;font-weight:750}.status{color:#327365;background:#eaf4f0;border:1px solid #d9e9e3}.status.error{color:#98601f;background:#fff5e8;border-color:#f0dfc5}.demo{color:#8d581b;background:#fff1d8;border:1px solid #f0d7ad}.heading{margin-bottom:20px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0;color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px}.card h2{font-size:15px;margin:0 0 4px}.hint{font-size:11px;color:var(--muted);margin:0 0 16px}.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;min-height:40px;border:1px solid #d7e0dc;border-radius:9px;background:#fff;padding:9px 10px;font-size:13px}.actions{display:flex;align-items:center;gap:12px;margin-top:14px}.primary,.secondary{border:0;border-radius:9px;padding:10px 15px;font-weight:750;cursor:pointer}.primary{background:var(--teal);color:white}.primary:disabled{opacity:.45;cursor:not-allowed}.message{font-size:11px;color:var(--muted)}.message.error{color:#a34f2b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:680px}.table th{font-size:10px;color:#829091;text-align:left;padding:0 9px 9px}.table td{font-size:11px;padding:10px 9px;border-top:1px solid #edf1ef}.sku-meta{display:block;color:#859291;font-size:9px;margin-top:2px}.count-input{width:100px;padding:7px;border:1px solid #d7e0dc;border-radius:7px}.empty{padding:20px;text-align:center;color:var(--muted);font-size:12px}.warning{padding:11px 13px;border-radius:10px;background:#fff7eb;color:#835822;font-size:11px;margin-top:12px}@media(max-width:800px){.app{padding:20px 16px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start;gap:10px}.badges{flex-wrap:wrap;justify-content:flex-end}}@media(max-width:500px){.form-grid{grid-template-columns:1fr}.card{padding:16px}.topbar{flex-direction:column}.badges{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="topbar"><div class="breadcrumb"><a href="../index.html">ホーム</a>　›　<a href="index.html">No.10 在庫出口予測</a>　›　<strong>商品データ管理</strong></div><div class="badges"><span class="status" id="dbStatus">Supabase接続確認中</span><span class="demo">DEMO・架空データ</span></div></div>
+  <header class="heading"><h1>商品データ管理</h1><p>週次販売数とSKU情報を登録します。</p></header>
+
+  <section class="card">
+    <h2>週次販売数を登録</h2>
+    <p class="hint">販売数を入力すると、対象SKUの現在庫を減らしてSupabaseへ保存します。同じ対象日の入力は上書き扱いです。</p>
+    <form id="salesForm">
+      <div class="form-grid">
+        <div class="field"><label for="salesStore">店舗</label><select id="salesStore" required></select></div>
+        <div class="field"><label for="salesSku">商品・SKU</label><select id="salesSku" required></select></div>
+        <div class="field"><label for="salesDate">週次報告日</label><input id="salesDate" type="date" value="2026-10-07" required></div>
+        <div class="field"><label for="salesUnits">販売本数</label><input id="salesUnits" type="number" min="0" step="1" value="0" required></div>
+      </div>
+      <div class="actions"><button class="primary" type="submit" id="salesSubmit">販売数を保存</button><span class="message" id="salesMessage" aria-live="polite"></span></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>SKUを新規登録</h2>
+    <p class="hint">商品名だけでなく、店舗ごとに在庫を管理するSKU単位で登録します。</p>
+    <form id="productForm">
+      <div class="form-grid">
+        <div class="field"><label for="newStore">店舗</label><select id="newStore" required></select></div>
+        <div class="field"><label for="newCategory">カテゴリ</label><select id="newCategory" required><option>アウター</option><option>トップス</option><option>ボトムス</option></select></div>
+        <div class="field"><label for="newId">SKUコード</label><input id="newId" placeholder="例：AW26-TOP-021-BLK-M" required></div>
+        <div class="field"><label for="newName">商品名</label><input id="newName" placeholder="例：クルーネックニット" required></div>
+        <div class="field"><label for="newVariant">色・サイズ</label><input id="newVariant" placeholder="例：黒 M" required></div>
+        <div class="field"><label for="newStart">販売開始時の在庫数</label><input id="newStart" type="number" min="1" step="1" value="50" required></div>
+        <div class="field"><label for="newCurrent">現在庫数</label><input id="newCurrent" type="number" min="0" step="1" value="50" required></div>
+      </div>
+      <div class="actions"><button class="primary" type="submit" id="productSubmit">SKUを登録</button><span class="message" id="productMessage" aria-live="polite"></span></div>
+    </form>
+    <div class="warning">登録したSKUの将来予測・値下げ推奨は自動算出しません。予測条件が決まるまでは、モック用の未設定データとして表示します。</div>
+  </section>
+
+  <section class="card">
+    <h2>登録済みSKU</h2>
+    <p class="hint">在庫数を確認できます。販売数の入力や新規登録後、この一覧とNo.10画面が更新されます。</p>
+    <div class="table-wrap"><table class="table"><thead><tr><th>店舗</th><th>商品・SKU</th><th>販売開始時</th><th>現在庫</th><th>直近登録の販売数</th></tr></thead><tbody id="skuRows"></tbody></table></div>
+  </section>
+</main>
+<script src="data.js"></script>
+<script>
+const SUPABASE_URL='https://gbimzagwjcgblcecposy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_XToT7s_XGQ2eXZtW3vh5eg_SiR21pQJ';
+let skuData=demoSkuData.map(x=>({...x,history:[...x.history],curve:[...x.curve]}));
+let databaseReady=false;
+async function databaseRequest(path,options={}){const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(options.headers||{})}});const body=await response.text();if(!response.ok)throw new Error(body||`HTTP ${response.status}`);return body?JSON.parse(body):null}
+function status(message,offline=false){const el=document.getElementById('dbStatus');el.textContent=message;el.classList.toggle('error',offline)}
+function storesOptions(){return Object.entries(storeInfo).map(([id,s])=>`<option value="${id}">${s.name} · ${s.area}</option>`).join('')}
+function refreshSelectors(){const store=document.getElementById('salesStore');const previous=store.value;store.innerHTML=storesOptions();if(previous)store.value=previous;refreshSkuOptions();document.getElementById('newStore').innerHTML=storesOptions()}
+function refreshSkuOptions(){const store=document.getElementById('salesStore').value;const list=skuData.filter(x=>x.store===store);document.getElementById('salesSku').innerHTML=list.map(x=>`<option value="${x.id}">${x.name} ${x.variant} · ${x.id}</option>`).join('')||'<option value="">対象SKUなし</option>'}
+function renderRows(){document.getElementById('skuRows').innerHTML=skuData.map(x=>`<tr><td>${storeInfo[x.store].name}</td><td><strong>${x.name} ${x.variant}</strong><span class="sku-meta">${x.category} · ${x.id}</span></td><td>${x.start}点</td><td>${x.current}点</td><td>${x.salesLog?.at(-1)?.units??'—'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">SKUがありません。</td></tr>'}
+function calculateActualProgress(item){if(item.start>0&&item.curve?.length>4)item.curve[4]=Math.round(((item.start-item.current)/item.start)*1000)/10}
+async function saveSkuData(){await databaseRequest('inventory_forecast_state?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:1,payload:skuData,updated_at:new Date().toISOString()})})}
+async function initialize(){try{const rows=await databaseRequest('inventory_forecast_state?select=id,payload&id=eq.1');if(rows?.length){if(!Array.isArray(rows[0].payload))throw new Error('保存データの形式が不正です');skuData=rows[0].payload;status('Supabase接続済み')}else{skuData=demoSkuData.map(x=>({...x,history:[...x.history],curve:[...x.curve]}));await saveSkuData();status('サンプルデータをSupabaseに保存済み')}databaseReady=true}catch(error){console.warn('Supabase connection unavailable:',error);skuData=demoSkuData.map(x=>({...x,history:[...x.history],curve:[...x.curve]}));status('DB未接続・サンプル表示',true);document.querySelectorAll('.primary').forEach(button=>button.disabled=true);document.getElementById('salesMessage').textContent='SQL設定とページ更新後に入力できます。';document.getElementById('productMessage').textContent='SQL設定とページ更新後に入力できます。'}refreshSelectors();renderRows()}
+document.getElementById('salesStore').addEventListener('change',refreshSkuOptions);
+document.getElementById('salesForm').addEventListener('submit',async event=>{event.preventDefault();const item=skuData.find(x=>x.id===document.getElementById('salesSku').value),date=document.getElementById('salesDate').value,units=Number(document.getElementById('salesUnits').value),message=document.getElementById('salesMessage');if(!item||!databaseReady)return;const logs=item.salesLog||(item.salesLog=[]),existing=logs.find(x=>x.date===date),delta=units-(existing?.units||0);if(item.current-delta<0){message.textContent='販売数が現在庫を超えています。';message.classList.add('error');return}const originalCurrent=item.current,originalLog=JSON.stringify(logs),originalHistory=[...item.history],originalCurve=[...item.curve];item.current-=delta;if(existing)existing.units=units;else logs.push({date,units});logs.sort((a,b)=>a.date.localeCompare(b.date));item.history=[...item.history.slice(0,Math.max(0,item.history.length-1)),...logs.slice(-4).map(x=>x.units)].slice(-4);calculateActualProgress(item);try{await saveSkuData();message.textContent=`${item.name}の在庫を${originalCurrent}点から${item.current}点に更新しました。`;message.classList.remove('error');renderRows()}catch(error){item.current=originalCurrent;item.salesLog=JSON.parse(originalLog);item.history=originalHistory;item.curve=originalCurve;message.textContent='保存できませんでした。接続設定を確認してください。';message.classList.add('error')}});
+document.getElementById('productForm').addEventListener('submit',async event=>{event.preventDefault();const message=document.getElementById('productMessage');if(!databaseReady)return;const item={store:document.getElementById('newStore').value,category:document.getElementById('newCategory').value,id:document.getElementById('newId').value.trim(),name:document.getElementById('newName').value.trim(),variant:document.getElementById('newVariant').value.trim(),start:Number(document.getElementById('newStart').value),current:Number(document.getElementById('newCurrent').value),history:[],salesLog:[],markdown:0,markdownDate:null,sellout:'2026-12-20',endStock:Number(document.getElementById('newCurrent').value),reason:'新規登録SKUです。予測条件は未設定です。',curve:Array(16).fill(0)};if(skuData.some(x=>x.id===item.id)){message.textContent='同じSKUコードがすでに登録されています。';message.classList.add('error');return}if(item.current>item.start){message.textContent='現在庫は販売開始時の在庫数以下にしてください。';message.classList.add('error');return}skuData.push(item);try{await saveSkuData();message.textContent=`${item.name}を登録しました。`;message.classList.remove('error');event.target.reset();document.getElementById('newStart').value=50;document.getElementById('newCurrent').value=50;refreshSelectors();renderRows()}catch(error){skuData=skuData.filter(x=>x.id!==item.id);message.textContent='登録を保存できませんでした。接続設定を確認してください。';message.classList.add('error')}});
+initialize();
+</script>
+</body>
+</html>
