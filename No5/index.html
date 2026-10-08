@@ -193,10 +193,11 @@ async function initializeDatabase(){try{const rows=await databaseRequest('store_
 function setOptions(){const yearSelect=document.getElementById('yearSelect'),monthSelect=document.getElementById('monthSelect'),weekSelect=document.getElementById('weekSelect');const years=[...new Set(weeks.map(week=>week.year))].sort((a,b)=>a-b);if(!years.includes(selectedYear))selectedYear=years[years.length-1];yearSelect.innerHTML=years.map(year=>'<option value="'+year+'">'+year+'年</option>').join('');yearSelect.value=selectedYear;const months=[...new Set(weeks.filter(week=>week.year===selectedYear).map(week=>week.month))].sort((a,b)=>a-b);if(!months.includes(selectedMonth))selectedMonth=months[months.length-1];monthSelect.innerHTML=months.map(month=>'<option value="'+month+'">'+month+'月</option>').join('');monthSelect.value=selectedMonth;const indexes=monthIndexes(selectedYear,selectedMonth);weekSelect.innerHTML=indexes.map(index=>'<option value="'+index+'">'+weeks[index].label.replace(/^\d+月 /,'')+'</option>').join('');weekSelect.hidden=mode==='month';if(mode==='week'){if(!indexes.includes(selectedWeek))selectedWeek=indexes[indexes.length-1];weekSelect.value=selectedWeek}}
 function getSummary(){
  const current=mode==='week'?allMetric(selectedWeek):allMonthMetric();
- const prev=mode==='week'&&selectedWeek>0?allMetric(selectedWeek-1):null;
- const deltaVisits=prev?(current.visits-prev.visits)/prev.visits:null;
- const deltaRate=prev?rate(current)-rate(prev):null;
- const deltaTicket=prev?(ticket(current)-ticket(prev))/ticket(prev):null;
+ const previousIndexes=previousMonthWeeks();
+ const prev=mode==='week'?(selectedWeek>0?allMetric(selectedWeek-1):null):(previousIndexes.length?aggregate(stores.flatMap(store=>previousIndexes.map(index=>store.weeks[index]).filter(Boolean))):null);
+ const deltaVisits=prev&&prev.visits?(current.visits-prev.visits)/prev.visits:null;
+ const deltaRate=prev&&prev.visits?rate(current)-rate(prev):null;
+ const deltaTicket=prev&&prev.buyers?(ticket(current)-ticket(prev))/ticket(prev):null;
  const r=rate(current),t=ticket(current);
  document.getElementById('summaryTitle').textContent=mode==='week'?'今週の全店サマリー':selectedYear+'年 '+selectedMonth+'月の全店サマリー';
  document.getElementById('summaryRange').textContent=mode==='week'?weeks[selectedWeek].range:selectedMonthWeeks().length+'週分の月次集計';
@@ -204,7 +205,9 @@ function getSummary(){
  const summaryText=mode==='week'?(selectedWeek===0?'比較用の前週データがありません。今週の数値と現場の声を確認します。':attention.length?'変化が見られる'+attention.map(a=>a.name).join('・')+'の数値と定性コメントを確認したい週です。':'大きな変化は見られません。KPIと定性コメントを合わせて確認します。'):selectedYear+'年 '+selectedMonth+'月の'+selectedMonthWeeks().length+'週間を通じた店舗ごとの動きを表示しています。客数・買上率の推移と現場の声を合わせて、月内の変化を振り返ります。';
  document.getElementById('summaryText').textContent=summaryText;
  document.getElementById('summaryAction').textContent=mode==='week'?'デモ用の要約です。実際の判断基準は未設定です。':selectedYear+'年 '+selectedMonth+'月の'+selectedMonthWeeks().length+'週分を合算したデモ用の月次サマリーです。';
- const sub=(v,cls)=>v===null?'<span class="metric-sub">期間内の集計</span>':'<span class="metric-sub delta '+cls+'">前週比 '+v+'</span>';
+ const comparisonLabel=mode==='week'?'前週比':'前月比';
+ const unavailableLabel=mode==='week'?(selectedWeek===0?'前週データなし':'比較不可'):(previousIndexes.length?'比較不可':'前月データなし');
+ const sub=(v,cls)=>v===null?'<span class="metric-sub">'+unavailableLabel+'</span>':'<span class="metric-sub delta '+cls+'">'+comparisonLabel+' '+v+'</span>';
  document.getElementById('metrics').innerHTML=
   '<div class="metric"><div class="metric-label">客数</div><div class="metric-value">'+num(current.visits)+'</div>'+sub(deltaVisits===null?null:(deltaVisits>=0?'+':'')+(deltaVisits*100).toFixed(1)+'%',deltaVisits<0?'down':'up')+'</div>'+
   '<div class="metric"><div class="metric-label">買上率</div><div class="metric-value">'+pct(r)+'</div>'+sub(deltaRate===null?null:(deltaRate>=0?'+':'')+(deltaRate*100).toFixed(1)+'pt',deltaRate<0?'down':'up')+'</div>'+
