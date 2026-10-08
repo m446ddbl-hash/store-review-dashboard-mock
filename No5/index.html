@@ -185,7 +185,7 @@ const ticket=m=>m.buyers?m.sales/m.buyers:0;
 const allMetric=(idx)=>aggregate(stores.map(s=>s.weeks[idx]));
 function setSyncStatus(message,isError=false){const el=document.getElementById('syncStatus');if(!el)return;el.textContent=message;el.classList.toggle('error',isError)}
 function serializeState(){return {periods:weeks.map(({year,month,week,label,range})=>({year,month,week,label,range})),stores:stores.map(store=>({id:store.id,name:store.name,area:store.area,weeks:store.weeks.map(record=>({visits:record.visits,buyers:record.buyers,sales:record.sales,comments:record.comments}))}))}}
-async function databaseRequest(path,options={}){const response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(options.headers||{})}});const body=await response.text();if(!response.ok)throw new Error(body||('HTTP '+response.status));return body?JSON.parse(body):null}
+async function databaseRequest(path,options={}){const response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(options.headers||{})}});const body=await response.text();if(!response.ok)throw new Error(body||('HTTP '+response.status));return body?JSON.parse(body):null}
 async function saveState(){await databaseRequest('store_review_state?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:1,payload:serializeState(),updated_at:new Date().toISOString()})})}
 function restoreState(payload){if(!payload||!Array.isArray(payload.periods)||!Array.isArray(payload.stores)||!payload.periods.length||!payload.stores.length)throw new Error('保存データの形式が正しくありません。');const periods=payload.periods.filter(p=>Number.isInteger(p.year)&&Number.isInteger(p.month)&&Number.isInteger(p.week)).sort((a,b)=>a.year-b.year||a.month-b.month||a.week-b.week);if(!periods.length)throw new Error('対象期間がありません。');weeks.splice(0,weeks.length,...periods);const restored=payload.stores.filter(s=>s&&s.id&&s.name).map(store=>{const records=Array.isArray(store.weeks)?store.weeks:[];return {...store,weeks:periods.map((period,index)=>{const record=records[index]||{};return {visits:Number(record.visits)||0,buyers:Number(record.buyers)||0,sales:Number(record.sales)||0,comments:Array.isArray(record.comments)?record.comments.filter(Array.isArray).map(c=>[String(c[0]||'その他'),String(c[1]||'')]):[]}})}});if(!restored.length)throw new Error('店舗データがありません。');stores.splice(0,stores.length,...restored);selectedStore=stores[0].id;selectedWeek=weeks.length-1;selectedYear=weeks[selectedWeek].year;selectedMonth=weeks[selectedWeek].month}
 async function initializeDatabase(){try{const rows=await databaseRequest('store_review_state?select=id,payload&id=eq.1');if(rows&&rows.length){restoreState(rows[0].payload);setSyncStatus('Supabase保存データを表示中')}else{await saveState();setSyncStatus('サンプルデータをSupabaseに保存済み')}}catch(error){console.warn('Supabase connection unavailable:',error);setSyncStatus('DB未接続 · サンプル表示',true)}render()}
@@ -363,7 +363,6 @@ render();initializeDatabase();
 </script>
 </body>
 </html>
-
 
 
 
