@@ -167,7 +167,7 @@ const augustComments=[
 ];
 stores.forEach((store,storeIndex)=>{const augustWeeks=augustData[storeIndex].map((row,weekIndex)=>({visits:row[0],buyers:row[1],sales:row[2],comments:augustComments[storeIndex][weekIndex].map(text=>[themeFor(text),text])}));store.weeks.unshift(...augustWeeks)});
 stores.forEach((store,storeIndex)=>store.weeks.slice(4).forEach((week,weekIndex)=>week.comments.push(...supplementalComments[storeIndex][weekIndex])));
-const SUPABASE_URL='https://gbimzagwjcgblceposy.supabase.co';
+const SUPABASE_URL='https://gbimzagwjcgblcecposy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_XToT7s_XGQ2eXZtW3vh5eg_SiR21pQJ';
 let mode='week', selectedWeek=7, selectedYear=2026, selectedMonth=9, selectedStore='B';
 const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -363,7 +363,6 @@ render();initializeDatabase();
 </script>
 </body>
 </html>
-
 
 
 
