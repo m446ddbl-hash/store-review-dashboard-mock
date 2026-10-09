@@ -46,5 +46,5 @@ function calculateNo10Forecast(item,events=[]){
  const remainingRate=item.start?endStock/item.start:0,markdown=endStock<=0?0:remainingRate>0.3?20:remainingRate>0.1?10:0,forecastStatus=endStock<=0?'完売見込み':markdown?'値下げ推奨':'要注意';
  const eventText=applicable.length?`予定イベント${applicable.length}件の販売増加見込みを反映。`:'予定イベントなし。';
  const reason=`直近${history.length}週の平均販売数は週${average.toFixed(1)}点。${eventText}12/9時点で約${Math.round(endStock)}点の在庫が残る見込みです。`;
- return {...item,curve,markdown,markdownDate:markdown?'2026-10-14':null,sellout,endStock:Math.round(endStock),forecastStatus,averageWeeklySales:average,applicableEvents,reason};
+ return {...item,curve,markdown,markdownDate:markdown?'2026-10-14':null,sellout,endStock:Math.round(endStock),forecastStatus,averageWeeklySales:average,applicableEvents:applicable,reason};
 }
