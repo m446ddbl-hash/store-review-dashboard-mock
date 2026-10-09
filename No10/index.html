@@ -12,11 +12,12 @@
 .products-view{padding:20px;margin-bottom:18px}.products-wrap{overflow:auto}.products-table{width:100%;border-collapse:collapse;min-width:650px}.products-table th{padding:0 10px 10px;text-align:left;color:#829091;font-size:10px;font-weight:700}.products-table td{padding:11px 10px;border-top:1px solid #edf1ef;font-size:11px}.products-table tr.product-row{cursor:pointer}.products-table tr.product-row:hover,.products-table tr.product-row:focus{background:#f4faf8;outline:none}.products-table tr.product-row.selected{background:#eaf4f0;box-shadow:inset 3px 0 #28776d}.products-name{font-weight:750}.products-meta{display:block;margin-top:3px;color:#859291;font-size:9px}.decision-badge{display:inline-flex;padding:4px 7px;border-radius:999px;background:#fff1df;color:#9c5d1b;font-size:10px;font-weight:750}.decision-badge.keep{background:#eaf4f0;color:#327365}.products-hint{font-size:10px;color:var(--muted);margin-top:4px}.topbar-badges{display:flex;align-items:center;gap:8px}.db-status{display:inline-flex;font-size:10px;font-weight:700;color:#327365;background:#eaf4f0;border:1px solid #d9e9e3;border-radius:999px;padding:6px 9px}.db-status.error{color:#98601f;background:#fff5e8;border-color:#f0dfc5}
 </style>
 <style>.manage-link{font-size:11px;font-weight:700;color:#28776d;text-decoration:none;padding:6px 9px;border:1px solid #d9e9e3;border-radius:999px;background:#fff}.manage-link:hover{text-decoration:underline;background:#eaf4f0}</style>
+<style>.event-schedule{padding:16px 18px;margin-bottom:18px}.event-schedule h2{font-size:14px;margin:0}.event-schedule p{font-size:10px;color:var(--muted);margin:3px 0 10px}.event-list{display:flex;flex-wrap:wrap;gap:8px}.event-pill{border:1px solid #f0dfc5;background:#fff8ee;border-radius:10px;padding:8px 10px;font-size:10px;color:#76542c}.event-pill strong{display:block;color:#714713;font-size:11px}.event-empty{font-size:10px;color:var(--muted)}.event-band{fill:#f5d9a9;opacity:.32}.event-band-edge{stroke:#bd8541;stroke-width:1;stroke-dasharray:4 4}.event-band-label{fill:#86591f;font-size:9px;font-weight:700}.event-mark{height:13px;border-left:8px solid #f5d9a9}</style>
 </head>
 <body>
 <main class="app">
   <div class="topbar">
-    <div class="breadcrumb"><a href="../index.html">ホーム</a>　›　<a href="../No5/index.html">No.5 店舗週次振り返り</a>　›　<strong>No.10 在庫出口予測</strong></div>
+    <div class="breadcrumb"><span>No.5 店舗週次振り返り</span>　›　<strong>No.10 在庫出口予測</strong></div>
     <div class="topbar-badges"><a class="manage-link" href="manage.html">商品データ管理</a><span class="db-status" id="dbStatus">Supabase接続確認中</span><span class="demo">DEMO・架空データ</span></div>
   </div>
   <header class="heading">
@@ -28,6 +29,7 @@
     <div class="field"><label for="categorySelect">カテゴリ</label><select class="select" id="categorySelect"><option value="all">すべて</option><option value="アウター">アウター</option><option value="トップス">トップス</option><option value="ボトムス">ボトムス</option></select></div>
     <div class="field sku"><label for="skuSelect">商品・SKU</label><select class="select" id="skuSelect"></select></div>
   </section>
+  <section class="card event-schedule"><h2>セール・イベント予定</h2><p>登録済み予定と、予測に使う販売増加の仮定です。</p><div class="event-list" id="eventRows"></div></section>
   <section class="sku-summary" id="skuSummary" aria-live="polite"></section>
   <section class="card products-view" id="allProductsView">
     <div class="card-head"><div><h2>対象商品一覧</h2><div class="products-hint">行を選ぶと、そのSKUの消化率予測を確認できます。</div></div></div>
@@ -44,9 +46,10 @@
         <span class="legend-item"><i class="legend-line"></i>実績</span>
         <span class="legend-item"><i class="legend-line forecast"></i>予測</span>
         <span class="legend-item" id="markdownLegend"><i class="legend-mark"></i>推奨値下げ日</span>
+        <span class="legend-item"><i class="event-mark"></i>セール・イベント期間</span>
         <span class="legend-item"><i class="season-mark"></i>シーズン終了 12/9</span>
       </div>
-      <p class="note">販売数の登録で在庫と実績最終日の消化率を更新します。将来予測と値下げ推奨は、算出条件が決まるまでモック値です。</p>
+      <p class="note">予測は直近4週の平均販売数とイベント中の販売増加仮定を使った簡易試算です。予測残在庫率10％超で10％OFF、30％超で20％OFFを表示します。値下げ自体の販売増加効果は含みません。</p>
     </article>
     <aside class="card side" aria-label="推奨内容">
       <h2>値下げ推奨</h2>
@@ -69,18 +72,20 @@
 </main>
 <script src="data.js"></script>
 <script>
-const dates=['2026-09-10','2026-09-17','2026-09-24','2026-10-01','2026-10-07','2026-10-14','2026-10-21','2026-10-28','2026-11-04','2026-11-11','2026-11-18','2026-11-25','2026-12-02','2026-12-09','2026-12-16','2026-12-20'];
+const dates=no10ForecastDates;
 const SUPABASE_URL='https://gbimzagwjcgblcecposy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_XToT7s_XGQ2eXZtW3vh5eg_SiR21pQJ';
-let skuData=demoSkuData;
+let skuData=demoSkuData,eventData=[];
 const storeSelect=document.getElementById('storeSelect'),categorySelect=document.getElementById('categorySelect'),skuSelect=document.getElementById('skuSelect');
 function setDbStatus(message,offline=false){const status=document.getElementById('dbStatus');status.textContent=message;status.classList.toggle('error',offline)}
 async function databaseRequest(path,options={}){const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(options.headers||{})}});const body=await response.text();if(!response.ok)throw new Error(body||`HTTP ${response.status}`);return body?JSON.parse(body):null}
-async function initializeSkuDatabase(){try{const rows=await databaseRequest('inventory_forecast_state?select=id,payload&id=eq.1');if(rows?.length){const remoteRows=rows[0].payload;if(!Array.isArray(remoteRows)||!remoteRows.every(x=>x&&x.id&&storeInfo[x.store]&&Array.isArray(x.curve)))throw new Error('保存データの形式が不正です');skuData=remoteRows;setDbStatus('Supabase接続済み')}else{await databaseRequest('inventory_forecast_state?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:1,payload:demoSkuData,updated_at:new Date().toISOString()})});skuData=demoSkuData;setDbStatus('サンプルデータをSupabaseに保存済み')}}catch(error){console.warn('Supabase connection unavailable:',error);skuData=demoSkuData;setDbStatus('DB未接続・サンプル表示',true)}}
-function renderSkuSummary(){const storeId=storeSelect.value,list=skuData.filter(x=>(storeId==="all"||x.store===storeId)&&(categorySelect.value==="all"||x.category===categorySelect.value)),recommended=list.filter(x=>x.markdown>0).length,storeLabel=storeId==="all"?"全店舗":storeInfo[storeId].name;document.getElementById("skuSummary").innerHTML=`<span class="sku-summary-title">${storeLabel} · 対象 ${list.length} SKU</span><span class="sku-summary-counts"><span class="sku-chip recommend">値下げ推奨 <strong>${recommended}</strong> SKU</span><span class="sku-chip">値下げ不要 <strong>${list.length-recommended}</strong> SKU</span></span><span class="sku-summary-hint">商品選択欄にも推奨内容を表示しています</span>`}
+async function initializeSkuDatabase(){try{const rows=await databaseRequest('inventory_forecast_state?select=id,payload&id=eq.1');if(rows?.length){const saved=rows[0].payload;if(Array.isArray(saved)){skuData=saved;eventData=demoEvents.map(event=>({...event}))}else if(saved&&Array.isArray(saved.skus)){skuData=saved.skus;eventData=Array.isArray(saved.events)?saved.events:demoEvents.map(event=>({...event}))}else throw new Error('保存データの形式が不正です');if(!skuData.every(x=>x&&x.id&&storeInfo[x.store]&&Array.isArray(x.curve)))throw new Error('SKUデータの形式が不正です');setDbStatus('Supabase接続済み')}else{await databaseRequest('inventory_forecast_state?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:1,payload:{skus:demoSkuData,events:demoEvents},updated_at:new Date().toISOString()})});skuData=demoSkuData;eventData=demoEvents.map(event=>({...event}));setDbStatus('サンプルデータをSupabaseに保存済み')}}catch(error){console.warn('Supabase connection unavailable:',error);skuData=demoSkuData;eventData=demoEvents.map(event=>({...event}));setDbStatus('DB未接続・サンプル表示',true)}}
+function projectedData(){return skuData.map(item=>calculateNo10Forecast(item,eventData))}
+function renderEventRows(){const el=document.getElementById('eventRows');if(!eventData.length){el.innerHTML='<span class="event-empty">登録されているイベントはありません。</span>';return}el.innerHTML=eventData.slice().sort((a,b)=>a.startDate.localeCompare(b.startDate)).map(event=>{const target=[event.store==='all'?'全店舗':storeInfo[event.store]?.name||event.store,event.category==='all'?'全カテゴリ':event.category,event.skuId||''].filter(Boolean).join(' · ');return `<div class="event-pill"><strong>${escapeNo10Html(event.name)}</strong>${escapeNo10Html(event.startDate)}〜${escapeNo10Html(event.endDate)} · ${escapeNo10Html(target)} · ${Number(event.discountPct)||0}%OFF / 販売数+${Number(event.upliftPct)||0}%想定</div>`}).join('')}
+function renderSkuSummary(){const storeId=storeSelect.value,list=projectedData().filter(x=>(storeId==="all"||x.store===storeId)&&(categorySelect.value==="all"||x.category===categorySelect.value)),recommended=list.filter(x=>x.markdown>0).length,watch=list.filter(x=>x.forecastStatus==='要注意').length,normal=list.filter(x=>x.forecastStatus==='完売見込み').length,insufficient=list.filter(x=>x.forecastStatus==='実績不足').length,storeLabel=storeId==="all"?"全店舗":storeInfo[storeId].name;document.getElementById("skuSummary").innerHTML=`<span class="sku-summary-title">${storeLabel} · 対象 ${list.length} SKU</span><span class="sku-summary-counts"><span class="sku-chip recommend">値下げ推奨 <strong>${recommended}</strong> SKU</span><span class="sku-chip">要注意 <strong>${watch}</strong> SKU</span><span class="sku-chip">完売見込み <strong>${normal}</strong> SKU</span><span class="sku-chip">実績不足 <strong>${insufficient}</strong> SKU</span></span><span class="sku-summary-hint">イベント予定を反映した簡易試算</span>`}
 function populateStores(){storeSelect.innerHTML=`<option value="all">すべて</option>`+Object.entries(storeInfo).map(([id,s])=>`<option value="${id}">${s.name} · ${s.area}</option>`).join('')}
-function populateSkus(preferred){const list=skuData.filter(x=>(storeSelect.value==='all'||x.store===storeSelect.value)&&(categorySelect.value==='all'||x.category===categorySelect.value));skuSelect.innerHTML=`<option value="all">すべての商品</option>`+list.map(x=>`<option value="${x.id}">${x.markdown>0?`【値下げ推奨 ${x.markdown}％OFF】`:`【値下げ不要】`} ${x.category} · ${x.name} ${x.variant} / ${x.id}</option>`).join('');if(preferred&&(preferred==='all'||list.some(x=>x.id===preferred)))skuSelect.value=preferred}
-function renderProducts(){const list=skuData.filter(x=>(storeSelect.value==='all'||x.store===storeSelect.value)&&(categorySelect.value==='all'||x.category===categorySelect.value));const tbody=document.getElementById('productsRows');tbody.innerHTML=list.map(x=>`<tr class="product-row ${x.id===skuSelect.value?'selected':''}" data-sku="${x.id}" role="button" tabindex="0" aria-label="${x.name} ${x.variant}の詳細を表示" aria-pressed="${x.id===skuSelect.value}"><td>${storeInfo[x.store].name}</td><td><span class="products-name">${x.name} ${x.variant}</span><span class="products-meta">${x.category} · ${x.id}</span></td><td>${x.current}点</td><td>${x.markdown>0?`<span class="decision-badge">${x.markdown}％OFF推奨</span><span class="products-meta">${shortDate(x.markdownDate)}から</span>`:`<span class="decision-badge keep">値下げ不要</span>`}</td><td>${shortDate(x.sellout)}${x.endStock>0?' · シーズン内完売なし':''}</td></tr>`).join('')||'<tr><td colspan="5">対象商品がありません。</td></tr>';tbody.querySelectorAll('.product-row').forEach(row=>{const choose=()=>{skuSelect.value=row.dataset.sku;render()};row.addEventListener('click',choose);row.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}})})}
+function populateSkus(preferred){const list=projectedData().filter(x=>(storeSelect.value==='all'||x.store===storeSelect.value)&&(categorySelect.value==='all'||x.category===categorySelect.value));skuSelect.innerHTML=`<option value="all">すべての商品</option>`+list.map(x=>`<option value="${escapeNo10Html(x.id)}">${x.forecastStatus==='実績不足'?'【実績不足】':x.markdown>0?`【${x.markdown}％OFF推奨】`:x.forecastStatus==='要注意'?'【要注意】':'【完売見込み】'} ${escapeNo10Html(x.category)} · ${escapeNo10Html(x.name)} ${escapeNo10Html(x.variant)} / ${escapeNo10Html(x.id)}</option>`).join('');if(preferred&&(preferred==='all'||list.some(x=>x.id===preferred)))skuSelect.value=preferred}
+function renderProducts(){const list=projectedData().filter(x=>(storeSelect.value==='all'||x.store===storeSelect.value)&&(categorySelect.value==='all'||x.category===categorySelect.value));const tbody=document.getElementById('productsRows');tbody.innerHTML=list.map(x=>`<tr class="product-row ${x.id===skuSelect.value?'selected':''}" data-sku="${escapeNo10Html(x.id)}" role="button" tabindex="0" aria-label="${escapeNo10Html(x.name)} ${escapeNo10Html(x.variant)}の詳細を表示" aria-pressed="${x.id===skuSelect.value}"><td>${storeInfo[x.store].name}</td><td><span class="products-name">${escapeNo10Html(x.name)} ${escapeNo10Html(x.variant)}</span><span class="products-meta">${escapeNo10Html(x.category)} · ${escapeNo10Html(x.id)}</span></td><td>${x.current}点</td><td>${x.forecastStatus==='実績不足'?'<span class="decision-badge keep">実績不足</span>':x.markdown>0?`<span class="decision-badge">${x.markdown}％OFF推奨</span><span class="products-meta">${shortDate(x.markdownDate)}から</span>`:x.forecastStatus==='要注意'?'<span class="decision-badge">要注意</span>':'<span class="decision-badge keep">値下げ不要</span>'}</td><td>${x.sellout?shortDate(x.sellout):'—'}${x.endStock>0?' · シーズン内完売なし':''}</td></tr>`).join('')||'<tr><td colspan="5">対象商品がありません。</td></tr>';tbody.querySelectorAll('.product-row').forEach(row=>{const choose=()=>{skuSelect.value=row.dataset.sku;render()};row.addEventListener('click',choose);row.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}})})}
 function pct(v){return `${Number(v).toFixed(1).replace(/\.0$/,'')}％`}
 function shortDate(s){const d=new Date(`${s}T00:00:00`);return `${d.getMonth()+1}/${d.getDate()}`}
 function drawChart(item){
@@ -91,6 +96,7 @@ function drawChart(item){
  let html='';
  [0,25,50,75,100].forEach(v=>{html+=`<line class="gridline" x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"/><text class="axis-label" x="${L-10}" y="${y(v)+4}" text-anchor="end">${v}%</text>`});
  html+=`<text class="axis-title" transform="translate(17 ${T+plotH/2}) rotate(-90)" text-anchor="middle">消化率</text>`;
+ const xDate=value=>L+plotW*(Date.parse(`${value}T00:00:00`)-dateTimes[0])/dateSpan;for(const event of item.applicableEvents||[]){const left=Math.max(L,xDate(event.startDate)),right=Math.min(W-R,xDate(event.endDate));if(right>left){html+=`<rect class="event-band" x="${left}" y="${T+18}" width="${right-left}" height="${plotH-18}" rx="3"/><line class="event-band-edge" x1="${left}" y1="${T+18}" x2="${left}" y2="${T+plotH}"/><text class="event-band-label" x="${left+3}" y="${T+28}">${escapeNo10Html(event.name)}</text>`}}
  const ticks=[0,3,4,6,8,10,12,13,15];
  const actualIndex=4;
  ticks.forEach(i=>{if(i<dates.length){const baseline=i===actualIndex;if(baseline)html+=`<rect x="${x(i)-20}" y="${H-35}" width="40" height="18" rx="8" fill="#e4f2ed"/>`;html+=`<text class="${baseline?'baseline-tick':'axis-label'}" x="${x(i)}" y="${H-22}" text-anchor="middle">${shortDate(dates[i])}</text>`}});
@@ -104,17 +110,17 @@ function drawChart(item){
 }
 function render(){
  renderSkuSummary();
- const allProducts=skuSelect.value==='all';document.getElementById('allProductsView').hidden=false;document.getElementById('detailLayout').hidden=allProducts;renderProducts();
+ renderEventRows();const allProducts=skuSelect.value==='all';document.getElementById('allProductsView').hidden=false;document.getElementById('detailLayout').hidden=allProducts;renderProducts();
  if(allProducts){const url=new URL(location.href);url.searchParams.set('store',storeSelect.value);url.searchParams.set('category',categorySelect.value);url.searchParams.set('sku','all');history.replaceState(null,'',url);return}
- const item=skuData.find(x=>x.id===skuSelect.value);if(!item)return;
+ const item=projectedData().find(x=>x.id===skuSelect.value);if(!item)return;
  document.getElementById('skuDescription').textContent=`${storeInfo[item.store].name} · ${item.category} · ${item.name} ${item.variant} · ${item.id}`;
- const rec=document.getElementById('recommendCard');rec.classList.toggle('needs',item.markdown>0);
- document.getElementById('recommendValue').textContent=item.markdown?`${item.markdown}％ OFF`:'値下げ不要';
- document.getElementById('recommendDate').textContent=item.markdown?`${shortDate(item.markdownDate)}から推奨`:'プロパー価格を維持';
+ const rec=document.getElementById('recommendCard');rec.classList.toggle('needs',item.markdown>0||item.forecastStatus==='要注意');
+ document.getElementById('recommendValue').textContent=item.forecastStatus==='実績不足'?'予測できません':item.markdown?`${item.markdown}％ OFF`:item.forecastStatus==='要注意'?'販売動向を確認':'値下げ不要';
+ document.getElementById('recommendDate').textContent=item.markdown?`${shortDate(item.markdownDate)}から推奨`:item.forecastStatus==='要注意'?'イベント反映後も残在庫あり':'プロパー価格を維持';
  document.getElementById('reason').textContent=item.reason;
- document.getElementById('selloutDate').textContent=`${new Date(item.sellout+'T00:00:00').getFullYear()}年${new Date(item.sellout+'T00:00:00').getMonth()+1}月${new Date(item.sellout+'T00:00:00').getDate()}日`;
- const late=item.endStock>0;const state=document.getElementById('selloutState');state.hidden=!late;state.textContent=late?'シーズン内完売見込みなし':'';
- document.getElementById('stockLine').textContent=late?`12/9時点の予測残在庫：約${item.endStock}点`:'シーズン終了前に完売する想定';
+ document.getElementById('selloutDate').textContent=item.sellout?`${new Date(item.sellout+'T00:00:00').getFullYear()}年${new Date(item.sellout+'T00:00:00').getMonth()+1}月${new Date(item.sellout+'T00:00:00').getDate()}日`:item.forecastStatus==='実績不足'?'—':'シーズン内完売見込みなし';
+ const late=item.endStock>0;const state=document.getElementById('selloutState');state.hidden=!late&&item.forecastStatus!=='実績不足';state.textContent=late?'シーズン内完売見込みなし':item.forecastStatus==='実績不足'?'販売実績を登録してください':'';
+ document.getElementById('stockLine').textContent=item.forecastStatus==='実績不足'?'週次販売実績を入力すると簡易試算を表示します。':late?`12/9時点の予測残在庫：約${item.endStock}点`:'予定イベント込みでシーズン終了前に完売する想定';
  document.getElementById('markdownLegend').style.display=item.markdown?'inline-flex':'none';
  drawChart(item);
  const url=new URL(location.href);url.searchParams.set('store',storeSelect.value);url.searchParams.set('category',categorySelect.value);url.searchParams.set('sku',item.id);history.replaceState(null,'',url);

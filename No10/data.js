@@ -21,3 +21,30 @@ const demoSkuData=[
  {store:'D',category:'トップス',id:'TEST-TOP-COMMON-D',name:'共通テスト用ニット',variant:'ネイビー M',start:95,current:61,history:[8,8,7,7],markdown:0,markdownDate:null,sellout:'2026-12-02',endStock:0,reason:'店舗切り替え時の商品選択維持を確認するための共通テスト商品です。',curve:[0,8.4,16.8,24.2,30.5,36.8,45.3,53.7,62.1,70.5,78.9,87.4,95.8,100,100,100]}
 ];
 const storeInfo={A:{name:'店舗A',area:'北エリア'},B:{name:'店舗B',area:'北エリア'},C:{name:'店舗C',area:'中部エリア'},D:{name:'店舗D',area:'関西エリア'}};
+const demoEvents=[{id:'DEMO-EVENT-001',name:'サンプル：秋の週末セール',startDate:'2026-10-15',endDate:'2026-10-18',store:'all',category:'アウター',skuId:'',discountPct:20,upliftPct:50}];
+const no10ForecastDates=['2026-09-10','2026-09-17','2026-09-24','2026-10-01','2026-10-07','2026-10-14','2026-10-21','2026-10-28','2026-11-04','2026-11-11','2026-11-18','2026-11-25','2026-12-02','2026-12-09','2026-12-16','2026-12-20'];
+const no10SeasonEnd='2026-12-09';
+function escapeNo10Html(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+function no10EventApplies(event,item){return (event.store==='all'||event.store===item.store)&&(event.category==='all'||event.category===item.category)&&(!event.skuId||event.skuId===item.id)}
+function no10EventOverlap(event,start,end){const a=Math.max(Date.parse(`${event.startDate}T00:00:00Z`),Date.parse(`${start}T00:00:00Z`)),b=Math.min(Date.parse(`${event.endDate}T23:59:59Z`),Date.parse(`${end}T23:59:59Z`));return Math.max(0,(b-a+1)/86400000)}
+function calculateNo10Forecast(item,events=[]){
+ const curve=Array.isArray(item.curve)?[...item.curve]:Array(16).fill(0),baseIndex=4,seasonIndex=no10ForecastDates.indexOf(no10SeasonEnd),history=(item.history||[]).slice(-4).map(Number).filter(value=>Number.isFinite(value)&&value>=0),average=history.length?history.reduce((a,b)=>a+b,0)/history.length:0,applicable=events.filter(event=>no10EventApplies(event,item)&&event.endDate>=no10ForecastDates[baseIndex]&&event.startDate<=no10SeasonEnd);
+ if(item.start>0)curve[baseIndex]=Math.round((item.start-item.current)/item.start*1000)/10;
+ if(!history.length||average<=0)return {...item,curve,markdown:0,markdownDate:null,sellout:null,endStock:item.current,forecastStatus:'実績不足',averageWeeklySales:average,applicableEvents:applicable,reason:'週次販売実績がないため、予測を表示できません。販売数を登録してください。'};
+ let stock=Math.max(0,Number(item.current)||0),sellout=null,endStock=null;
+ if(stock===0)sellout=no10ForecastDates[baseIndex];
+ for(let index=baseIndex+1;index<no10ForecastDates.length;index++){
+   if(index>seasonIndex){curve[index]=curve[seasonIndex];continue}
+   const start=no10ForecastDates[index-1],end=no10ForecastDates[index],days=(Date.parse(`${end}T00:00:00Z`)-Date.parse(`${start}T00:00:00Z`))/86400000;
+   let expected=average*days/7;
+   for(const event of applicable){const overlap=no10EventOverlap(event,start,end);if(overlap>0)expected+=average*overlap/7*(Number(event.upliftPct)||0)/100}
+   const before=stock,sold=Math.min(stock,expected);stock=Math.max(0,stock-sold);curve[index]=Math.min(100,Math.round((item.start-stock)/item.start*1000)/10);
+   if(!sellout&&before>0&&stock===0){const ratio=sold?Math.min(1,before/sold):1;sellout=new Date(Date.parse(`${start}T00:00:00Z`)+(Date.parse(`${end}T00:00:00Z`)-Date.parse(`${start}T00:00:00Z`))*ratio).toISOString().slice(0,10)}
+   if(index===seasonIndex)endStock=stock;
+ }
+ if(endStock===null)endStock=stock;
+ const remainingRate=item.start?endStock/item.start:0,markdown=endStock<=0?0:remainingRate>0.3?20:remainingRate>0.1?10:0,forecastStatus=endStock<=0?'完売見込み':markdown?'値下げ推奨':'要注意';
+ const eventText=applicable.length?`予定イベント${applicable.length}件の販売増加見込みを反映。`:'予定イベントなし。';
+ const reason=`直近${history.length}週の平均販売数は週${average.toFixed(1)}点。${eventText}12/9時点で約${Math.round(endStock)}点の在庫が残る見込みです。`;
+ return {...item,curve,markdown,markdownDate:markdown?'2026-10-14':null,sellout,endStock:Math.round(endStock),forecastStatus,averageWeeklySales:average,applicableEvents,reason};
+}
