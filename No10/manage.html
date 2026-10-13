@@ -12,11 +12,11 @@
 <body>
 <main class="app">
   <div class="topbar"><div class="breadcrumb"><a href="../index.html">ホーム</a>　›　<a href="index.html">No.10 在庫出口予測</a>　›　<strong>商品データ管理</strong></div><div class="badges"><span class="status" id="dbStatus">Supabase接続確認中</span><span class="demo">DEMO・架空データ</span></div></div>
-  <header class="heading"><h1>商品データ管理</h1><p>週次販売数・SKU情報・セールやイベント予定を登録します。</p></header>
+  <header class="heading"><h1>商品データ管理</h1><p>週次販売数とSKU情報を登録します。</p></header>
 
   <section class="card">
     <h2>CSVから取り込む</h2>
-    <p class="hint">UTF-8のCSVを選ぶと、反映前に先頭5行を確認できます。販売数・新規SKU・イベント予定は別々に取り込みます。</p>
+    <p class="hint">UTF-8のCSVを選ぶと、反映前に先頭5行を確認できます。販売数と新規SKUは別々に取り込みます。</p>
     <div class="csv-grid">
       <div class="csv-box">
         <h3>週次販売数CSV</h3>
@@ -35,16 +35,6 @@
         <button class="primary csv-import" id="importProducts" type="button">SKU CSVを取り込む</button>
         <div class="message" id="productCsvMessage" aria-live="polite"></div>
         <div class="preview" id="productPreview"></div>
-      </div>
-      <div class="csv-box events-csv" style="grid-column:1/-1">
-        <h3>セール・イベント予定CSV</h3>
-        <p>新しい予定をまとめて追加します。登録済みの予定は下の一覧から修正してください。</p>
-        <div class="csv-tools"><a href="#" id="eventTemplate">テンプレートをダウンロード</a></div>
-        <input type="file" id="eventCsv" accept=".csv,text/csv">
-        <button class="primary csv-import" id="importEvents" type="button">イベントCSVを取り込む</button>
-        <div class="message" id="eventCsvMessage" aria-live="polite"></div>
-        <div class="preview" id="eventPreview"></div>
-        <div class="csv-note">全店舗・全カテゴリは all、SKU指定なしは空欄。日付は YYYY-MM-DD。値引率は0〜90、販売数増加見込みは0〜300の整数です。</div>
       </div>
     </div>
     <div class="csv-note">店舗コードは A〜D。販売数CSVの列は「店舗コード、SKUコード、週次報告日、販売本数」、SKU CSVは「店舗コード、カテゴリ、SKUコード、商品名、色・サイズ、販売開始時の在庫数、現在庫数」です。</div>
@@ -109,6 +99,6 @@
   </section>
 </main>
 <script src="data.js"></script>
-<script src="manage.js?v=20261013-event-csv"></script>
+<script src="manage.js"></script>
 </body>
 </html>

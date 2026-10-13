@@ -3,12 +3,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_XToT7s_XGQ2eXZtW3vh5eg_SiR21pQJ';
 let skuData=demoSkuData.map(item=>({...item,history:[...(item.history||[])],curve:[...(item.curve||[])]}));
 let eventData=[];
 let databaseReady=false;
-const pendingCsv={sales:null,products:null,events:null};
-const csvControls={
-  sales:{input:'salesCsv',button:'importSales',message:'salesCsvMessage',preview:'salesPreview'},
-  products:{input:'productCsv',button:'importProducts',message:'productCsvMessage',preview:'productPreview'},
-  events:{input:'eventCsv',button:'importEvents',message:'eventCsvMessage',preview:'eventPreview'}
-};
+const pendingCsv={sales:null,products:null};
 
 async function databaseRequest(path,options={}){
   const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(options.headers||{})}});
@@ -26,111 +21,25 @@ function refreshEventSkus(){const store=document.getElementById('eventStore').va
 function renderRows(){const rows=document.getElementById('skuRows');rows.innerHTML=skuData.map(item=>`<tr><td>${escapeNo10Html(storeInfo[item.store]?.name||item.store)}</td><td><strong>${escapeNo10Html(item.name)} ${escapeNo10Html(item.variant)}</strong><span class="sku-meta">${escapeNo10Html(item.category)} · ${escapeNo10Html(item.id)}</span></td><td>${Number(item.start)||0}点</td><td>${Number(item.current)||0}点</td><td>${item.salesLog?.length?`${Number(item.salesLog[item.salesLog.length-1].units)||0}点`:'—'}</td><td><div class="row-actions"><button type="button" data-edit-sku="${escapeNo10Html(item.id)}">修正</button><button type="button" class="danger" data-delete-sku="${escapeNo10Html(item.id)}">削除</button></div></td></tr>`).join('')||'<tr><td colspan="6" class="empty">SKUがありません。</td></tr>';rows.querySelectorAll('[data-edit-sku]').forEach(button=>button.addEventListener('click',()=>editSku(button.dataset.editSku)));rows.querySelectorAll('[data-delete-sku]').forEach(button=>button.addEventListener('click',()=>deleteSku(button.dataset.deleteSku)))}
 function renderEvents(){const list=document.getElementById('eventRows');if(!eventData.length){list.innerHTML='<p class="empty">イベント予定はまだありません。</p>';return}list.innerHTML=eventData.slice().sort((a,b)=>a.startDate.localeCompare(b.startDate)).map(event=>{const scope=[event.store==='all'?'全店舗':storeInfo[event.store]?.name||event.store,event.category==='all'?'全カテゴリ':event.category,event.skuId||''].filter(Boolean).join(' · ');return `<div class="event-row"><div><strong>${escapeNo10Html(event.name)}</strong><small>${escapeNo10Html(event.startDate)}〜${escapeNo10Html(event.endDate)} · ${escapeNo10Html(scope)} · ${Number(event.discountPct)}%OFF / 販売数+${Number(event.upliftPct)}%想定</small></div><div class="event-actions"><button type="button" data-edit-event="${escapeNo10Html(event.id)}">修正</button><button type="button" class="danger" data-delete-event="${escapeNo10Html(event.id)}">削除</button></div></div>`}).join('');list.querySelectorAll('[data-edit-event]').forEach(button=>button.addEventListener('click',()=>editEvent(button.dataset.editEvent)));list.querySelectorAll('[data-delete-event]').forEach(button=>button.addEventListener('click',()=>deleteEvent(button.dataset.deleteEvent)))}
 async function saveState(){await databaseRequest('inventory_forecast_state?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:1,payload:{skus:skuData,events:eventData},updated_at:new Date().toISOString()})})}
-async function initialize(){document.querySelectorAll('.primary').forEach(button=>button.disabled=true);try{const rows=await databaseRequest('inventory_forecast_state?select=id,payload&id=eq.1');if(rows?.length){const saved=rows[0].payload;if(Array.isArray(saved)){skuData=saved;eventData=clone(demoEvents)}else if(saved&&Array.isArray(saved.skus)){skuData=saved.skus;eventData=Array.isArray(saved.events)?saved.events:clone(demoEvents)}else throw new Error('保存データの形式が不正です');status('Supabase接続済み')}else{eventData=clone(demoEvents);await saveState();status('サンプルデータをSupabaseに保存済み')}databaseReady=true}catch(error){console.warn('Supabase connection unavailable:',error);skuData=demoSkuData;eventData=clone(demoEvents);status('DB未接続・サンプル表示',true);['salesMessage','productMessage','salesCsvMessage','productCsvMessage','eventCsvMessage','eventMessage'].forEach(id=>messageFor(id,'Supabaseに接続できないため登録・取込を停止しています。',true))}document.querySelectorAll('.primary').forEach(button=>button.disabled=!databaseReady);refreshSelectors();renderRows();renderEvents()}
+async function initialize(){document.querySelectorAll('.primary').forEach(button=>button.disabled=true);try{const rows=await databaseRequest('inventory_forecast_state?select=id,payload&id=eq.1');if(rows?.length){const saved=rows[0].payload;if(Array.isArray(saved)){skuData=saved;eventData=clone(demoEvents)}else if(saved&&Array.isArray(saved.skus)){skuData=saved.skus;eventData=Array.isArray(saved.events)?saved.events:clone(demoEvents)}else throw new Error('保存データの形式が不正です');status('Supabase接続済み')}else{eventData=clone(demoEvents);await saveState();status('サンプルデータをSupabaseに保存済み')}databaseReady=true}catch(error){console.warn('Supabase connection unavailable:',error);skuData=demoSkuData;eventData=clone(demoEvents);status('DB未接続・サンプル表示',true);['salesMessage','productMessage','salesCsvMessage','productCsvMessage','eventMessage'].forEach(id=>messageFor(id,'Supabaseに接続できないため登録・取込を停止しています。',true))}document.querySelectorAll('.primary').forEach(button=>button.disabled=!databaseReady);refreshSelectors();renderRows();renderEvents()}
 
 const salesHeaders=['店舗コード','SKUコード','週次報告日','販売本数'];
 const salesPreviewHeaders=[...salesHeaders,'現在庫（取込前）','現在庫（取込後）'];
 const productHeaders=['店舗コード','カテゴリ','SKUコード','商品名','色・サイズ','販売開始時の在庫数','現在庫数'];
-const eventHeaders=['イベント名','店舗コード','カテゴリ','SKUコード','開始日','終了日','値引率（％）','販売数増加見込み（％）'];
 function csvCell(value){const text=String(value??'');return /[",\r\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text}
 function downloadCsv(filename,headers){const blob=new Blob(['\uFEFF'+headers.map(csvCell).join(',')+'\r\n'],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i];if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++}else if(ch==='"')quoted=false;else cell+=ch}else if(ch==='"'){if(cell.length)throw new Error('CSVの引用符の位置が正しくありません。');quoted=true}else if(ch===','){row.push(cell);cell=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(value=>value.trim()))rows.push(row);row=[];cell=''}else cell+=ch}if(quoted)throw new Error('CSVの引用符が閉じられていません。');row.push(cell);if(row.some(value=>value.trim()))rows.push(row);return rows}
-async function readCsv(input,required){
- const file=input.files?.[0];if(!file)throw new Error('CSVファイルを選んでください。');
- const rows=parseCsv((await file.text()).replace(/^\uFEFF/,''));
- if(rows.length<2)throw new Error('見出しとデータ行があるCSVを選んでください。');
- const headers=rows[0].map(value=>value.trim());
- if(new Set(headers).size!==headers.length)throw new Error('CSVの列名が重複しています。テンプレートの列名を使用してください。');
- const missing=required.filter(header=>!headers.includes(header));
- if(missing.length)throw new Error(`必要な列がありません：${missing.join('、')}`);
- return rows.slice(1).map((values,index)=>{
-  if(values.length!==headers.length)throw new Error(`${index+2}行目の列数が見出しと一致しません。`);
-  return Object.fromEntries(headers.map((header,i)=>[header,(values[i]??'').trim()]));
- });
-}
+async function readCsv(input,required){const file=input.files?.[0];if(!file)throw new Error('CSVファイルを選んでください。');const rows=parseCsv((await file.text()).replace(/^\uFEFF/,''));if(rows.length<2)throw new Error('見出しとデータ行があるCSVを選んでください。');const headers=rows[0].map(value=>value.trim()),missing=required.filter(header=>!headers.includes(header));if(missing.length)throw new Error(`必要な列がありません：${missing.join('、')}`);return rows.slice(1).map((values,index)=>{if(values.length!==headers.length)throw new Error(`${index+2}行目の列数が見出しと一致しません。`);return Object.fromEntries(headers.map((header,i)=>[header,(values[i]??'').trim()]))})}
 function countValue(value,label,row,{minimum=0}={}){if(!/^\d+$/.test(value))throw new Error(`${row}行目の「${label}」は0以上の整数で入力してください。`);const number=Number(value);if(!Number.isSafeInteger(number)||number<minimum)throw new Error(`${row}行目の「${label}」が有効な範囲ではありません。`);return number}
 function validIsoDate(value,row,label){if(!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new Error(`${row}行目の「${label}」はYYYY-MM-DD形式で入力してください。`);const date=new Date(`${value}T00:00:00Z`);if(Number.isNaN(date.getTime())||date.toISOString().slice(0,10)!==value)throw new Error(`${row}行目の「${label}」が正しくありません。`);return value}
-function showPreview(kind,items,keys){
- const box=document.getElementById(csvControls[kind].preview);
- const normalized=kind==='sales'?items.map(item=>({'店舗コード':item.store,'SKUコード':item.id,'週次報告日':item.date,'販売本数':item.units,'現在庫（取込前）':item.beforeStock,'現在庫（取込後）':item.afterStock})):
-  kind==='products'?items.map(item=>({'店舗コード':item.store,'カテゴリ':item.category,'SKUコード':item.id,'商品名':item.name,'色・サイズ':item.variant,'販売開始時の在庫数':item.start,'現在庫数':item.current})):
-  items.map(item=>({'イベント名':item.name,'店舗コード':item.store==='all'?'全店舗（all）':item.store,'カテゴリ':item.category==='all'?'全カテゴリ（all）':item.category,'SKUコード':item.skuId||'指定なし','開始日':item.startDate,'終了日':item.endDate,'値引率（％）':item.discountPct,'販売数増加見込み（％）':item.upliftPct}));
- const rows=normalized.slice(0,5).map(item=>`<tr>${keys.map(key=>`<td>${escapeNo10Html(item[key])}</td>`).join('')}</tr>`).join('');
- box.innerHTML=`<strong>${items.length}行を読み込みました。先頭${Math.min(items.length,5)}行の確認：</strong><table><thead><tr>${keys.map(key=>`<th>${escapeNo10Html(key)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table><div class="preview-actions">問題なければ、ボタンをもう一度押して反映します。</div>`;
- box.classList.add('visible');
-}
-function clearPreview(kind,resetInput=false){
- pendingCsv[kind]=null;const controls=csvControls[kind],box=document.getElementById(controls.preview);
- box.classList.remove('visible');box.textContent='';
- const button=document.getElementById(controls.button);button.textContent=button.dataset.label;
- if(resetInput)document.getElementById(controls.input).value='';
-}
-function setImportButton(button,busy){
- button.disabled=busy||!databaseReady;
- button.textContent=busy?'確認・保存中…':pendingCsv[button.dataset.csvKind]?'この内容で取り込む':button.dataset.label;
-}
+function showPreview(kind,items,keys){const box=document.getElementById(kind==='sales'?'salesPreview':'productPreview'),normalized=kind==='sales'?items.map(item=>({'店舗コード':item.store,'SKUコード':item.id,'週次報告日':item.date,'販売本数':item.units,'現在庫（取込前）':item.beforeStock,'現在庫（取込後）':item.afterStock})):items.map(item=>({'店舗コード':item.store,'カテゴリ':item.category,'SKUコード':item.id,'商品名':item.name,'色・サイズ':item.variant,'販売開始時の在庫数':item.start,'現在庫数':item.current})),rows=normalized.slice(0,5).map(item=>`<tr>${keys.map(key=>`<td>${escapeNo10Html(item[key])}</td>`).join('')}</tr>`).join('');box.innerHTML=`<strong>${items.length}行を読み込みました。先頭${Math.min(items.length,5)}行の確認：</strong><table><thead><tr>${keys.map(key=>`<th>${escapeNo10Html(key)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table><div class="preview-actions">問題なければ、ボタンをもう一度押して反映します。</div>`;box.classList.add('visible')}
+function clearPreview(kind,resetInput=false){pendingCsv[kind]=null;const box=document.getElementById(kind==='sales'?'salesPreview':'productPreview');box.classList.remove('visible');box.textContent='';const button=document.getElementById(kind==='sales'?'importSales':'importProducts');button.textContent=button.dataset.label;if(resetInput)document.getElementById(kind==='sales'?'salesCsv':'productCsv').value=''}
+function setImportButton(button,busy){button.disabled=busy||!databaseReady;button.textContent=busy?'確認・保存中…':pendingCsv[button.id==='importSales'?'sales':'products']?'この内容で取り込む':button.dataset.label}
 async function stageSalesCsv(){const rows=await readCsv(document.getElementById('salesCsv'),salesHeaders),items=rows.map((row,index)=>{const line=index+2,store=row['店舗コード'],id=row['SKUコード'],date=validIsoDate(row['週次報告日'],line,'週次報告日'),units=countValue(row['販売本数'],'販売本数',line);if(!storeInfo[store])throw new Error(`${line}行目の店舗コードはA〜Dで指定してください。`);const item=skuData.find(value=>value.store===store&&value.id===id);if(!item)throw new Error(`${line}行目のSKU「${id}」は${storeInfo[store].name}に登録されていません。`);return {store,id,date,units,item}}),seen=new Set(),deltaByItem=new Map();for(const entry of items){const key=`${entry.store}|${entry.id}|${entry.date}`;if(seen.has(key))throw new Error(`${entry.store}・${entry.id}・${entry.date}の行がCSV内で重複しています。`);seen.add(key);const old=(entry.item.salesLog||[]).find(log=>log.date===entry.date),delta=entry.units-(old?.units||0);deltaByItem.set(entry.item,(deltaByItem.get(entry.item)||0)+delta)}for(const [item,delta] of deltaByItem)if(item.current-delta<0)throw new Error(`${item.name}の在庫がマイナスになる販売数です。`);for(const entry of items){entry.beforeStock=entry.item.current;entry.afterStock=entry.item.current-deltaByItem.get(entry.item)}return items}
 async function stageProductCsv(){const rows=await readCsv(document.getElementById('productCsv'),productHeaders),existing=new Set(skuData.map(item=>item.id)),seen=new Set();return rows.map((row,index)=>{const line=index+2,store=row['店舗コード'],category=row['カテゴリ'],id=row['SKUコード'],name=row['商品名'],variant=row['色・サイズ'],start=countValue(row['販売開始時の在庫数'],'販売開始時の在庫数',line,{minimum:1}),current=countValue(row['現在庫数'],'現在庫数',line);if(!storeInfo[store])throw new Error(`${line}行目の店舗コードはA〜Dで指定してください。`);if(!['アウター','トップス','ボトムス'].includes(category))throw new Error(`${line}行目のカテゴリが選択肢にありません。`);if(!id||!name||!variant)throw new Error(`${line}行目のSKUコード・商品名・色サイズを入力してください。`);if(existing.has(id)||seen.has(id))throw new Error(`${line}行目のSKUコード「${id}」は重複しています。`);if(current>start)throw new Error(`${line}行目の現在庫は販売開始時の在庫を超えています。`);seen.add(id);return {store,category,id,name,variant,start,current}})}
 async function commitSales(items){const before=clone(skuData);try{for(const {item,date,units} of items){const logs=item.salesLog||(item.salesLog=[]),existing=logs.find(log=>log.date===date),delta=units-(existing?.units||0);item.current-=delta;if(existing)existing.units=units;else logs.push({date,units});logs.sort((a,b)=>a.date.localeCompare(b.date));item.history=logs.slice(-4).map(log=>log.units);if(item.start>0)item.curve[4]=Math.round((item.start-item.current)/item.start*1000)/10}await saveState()}catch(error){skuData=before;throw new Error('保存に失敗しました。内容は反映していません。Supabase接続を確認してください。')}messageFor('salesCsvMessage',`${items.length}行を反映しました。販売実績・現在庫を更新しました。`);clearPreview('sales',true);renderRows()}
 async function commitProducts(items){const before=skuData;try{skuData=[...skuData,...items.map(item=>({...item,history:[],salesLog:[],markdown:0,markdownDate:null,sellout:null,endStock:item.current,reason:'販売実績不足のため未算出です。',curve:Array(16).fill(0)}))];await saveState()}catch(error){skuData=before;throw new Error('保存に失敗しました。登録内容は反映していません。Supabase接続を確認してください。')}messageFor('productCsvMessage',`${items.length}件のSKUを登録しました。`);clearPreview('products',true);refreshSelectors();renderRows()}
-function setupCsvImport(kind){
- const controls=csvControls[kind],button=document.getElementById(controls.button),input=document.getElementById(controls.input);
- const handlers={sales:{keys:salesPreviewHeaders,stage:stageSalesCsv,commit:commitSales},products:{keys:productHeaders,stage:stageProductCsv,commit:commitProducts},events:{keys:eventHeaders,stage:stageEventCsv,commit:commitEvents}}[kind];
- button.dataset.label=button.textContent;button.dataset.csvKind=kind;
- button.addEventListener('click',async()=>{
-  if(!databaseReady)return;setImportButton(button,true);
-  try{
-   if(pendingCsv[kind])await handlers.commit(pendingCsv[kind]);
-   else{
-    const items=await handlers.stage();pendingCsv[kind]=items;
-    showPreview(kind,items,handlers.keys);button.textContent='この内容で取り込む';
-    messageFor(controls.message,'取込前の確認です。表示内容を確認してください。');
-   }
-  }catch(error){clearPreview(kind);messageFor(controls.message,error.message||'CSVを処理できませんでした。',true)}
-  finally{button.disabled=!databaseReady}
- });
- input.addEventListener('change',()=>{
-  if(pendingCsv[kind])clearPreview(kind);
-  messageFor(controls.message,'CSVを選択しました。ボタンを押すと内容を確認できます。');
- });
-}
-
-function eventIdentity(event){
- return JSON.stringify([event.name.trim(),event.store,event.category,event.skuId||'',event.startDate,event.endDate]);
-}
-function validateEventCsvRows(rows){
- const existing=new Set(eventData.map(eventIdentity)),seen=new Set();
- return rows.map((row,index)=>{
-  const line=index+2,name=row['イベント名'].trim(),store=row['店舗コード'],category=row['カテゴリ'],skuId=row['SKUコード'];
-  if(!name)throw new Error(`${line}行目のイベント名を入力してください。`);
-  if(store!=='all'&&!storeInfo[store])throw new Error(`${line}行目の店舗コードはA〜D、全店舗はallで指定してください。`);
-  if(!['all','アウター','トップス','ボトムス'].includes(category))throw new Error(`${line}行目のカテゴリはアウター・トップス・ボトムス、全カテゴリはallで指定してください。`);
-  const startDate=validIsoDate(row['開始日'],line,'開始日'),endDate=validIsoDate(row['終了日'],line,'終了日');
-  if(startDate>endDate)throw new Error(`${line}行目の終了日は開始日以降にしてください。`);
-  const discountPct=countValue(row['値引率（％）'],'値引率（％）',line),upliftPct=countValue(row['販売数増加見込み（％）'],'販売数増加見込み（％）',line);
-  if(discountPct>90)throw new Error(`${line}行目の値引率（％）は0〜90の整数で入力してください。`);
-  if(upliftPct>300)throw new Error(`${line}行目の販売数増加見込み（％）は0〜300の整数で入力してください。`);
-  const item=skuId?skuData.find(item=>item.id===skuId):null;
-  if(skuId&&!item)throw new Error(`${line}行目のSKU「${skuId}」は登録されていません。`);
-  if(item&&store!=='all'&&store!==item.store)throw new Error(`${line}行目の店舗コードとSKUの店舗が一致しません。`);
-  if(item&&category!=='all'&&category!==item.category)throw new Error(`${line}行目のカテゴリとSKUのカテゴリが一致しません。`);
-  const event={name,store:item?item.store:store,category:item?item.category:category,skuId,startDate,endDate,discountPct,upliftPct},key=eventIdentity(event);
-  if(existing.has(key)||seen.has(key))throw new Error(`${line}行目のイベント「${name}」は同じ対象・期間で重複しています。既存の予定は一覧の「修正」で更新してください。`);
-  seen.add(key);return event;
- });
-}
-async function stageEventCsv(){
- return validateEventCsvRows(await readCsv(document.getElementById('eventCsv'),eventHeaders));
-}
-async function commitEvents(items){
- // Recheck the current SKU/event state in case it changed after the preview.
- const validated=validateEventCsvRows(items.map(item=>({'イベント名':item.name,'店舗コード':item.store,'カテゴリ':item.category,'SKUコード':item.skuId,'開始日':item.startDate,'終了日':item.endDate,'値引率（％）':String(item.discountPct),'販売数増加見込み（％）':String(item.upliftPct)})));
- const before=eventData;
- eventData=[...eventData,...validated.map((item,index)=>({...item,id:`event-csv-${Date.now()}-${index}-${Math.random().toString(36).slice(2,10)}`}))];
- try{await saveState()}catch(error){eventData=before;throw new Error('保存に失敗しました。イベント予定は反映していません。Supabase接続を確認してください。')}
- messageFor('eventCsvMessage',`${validated.length}件のイベント予定を登録しました。予測画面を再読込して確認してください。`);
- clearPreview('events',true);renderEvents();
-}
+function setupCsvImport(kind){const button=document.getElementById(kind==='sales'?'importSales':'importProducts'),input=document.getElementById(kind==='sales'?'salesCsv':'productCsv'),messageId=kind==='sales'?'salesCsvMessage':'productCsvMessage',keys=kind==='sales'?salesPreviewHeaders:productHeaders;button.dataset.label=button.textContent;button.addEventListener('click',async()=>{if(!databaseReady)return;setImportButton(button,true);try{if(pendingCsv[kind]){await (kind==='sales'?commitSales(pendingCsv[kind]):commitProducts(pendingCsv[kind]))}else{const items=await (kind==='sales'?stageSalesCsv():stageProductCsv());pendingCsv[kind]=items;showPreview(kind,items,keys);button.textContent='この内容で取り込む';messageFor(messageId,'取込前の確認です。表示内容を確認してください。')}}catch(error){clearPreview(kind);button.textContent=button.dataset.label;messageFor(messageId,error.message||'CSVを処理できませんでした。',true)}finally{button.disabled=!databaseReady}});input.addEventListener('change',()=>{if(pendingCsv[kind])clearPreview(kind);messageFor(messageId,'CSVを選択しました。ボタンを押すと内容を確認できます。')})}
 
 function resetProductForm(){document.getElementById('productForm').reset();document.getElementById('editSkuId').value='';document.getElementById('newId').readOnly=false;document.getElementById('newStart').value=50;document.getElementById('newCurrent').value=50;document.getElementById('productSubmit').textContent='SKUを登録';document.getElementById('cancelEdit').hidden=true;messageFor('productMessage','')}
 function editSku(id){const item=skuData.find(value=>value.id===id);if(!item)return;document.getElementById('editSkuId').value=id;document.getElementById('newStore').value=item.store;document.getElementById('newCategory').value=item.category;document.getElementById('newId').value=item.id;document.getElementById('newId').readOnly=true;document.getElementById('newName').value=item.name;document.getElementById('newVariant').value=item.variant;document.getElementById('newStart').value=item.start;document.getElementById('newCurrent').value=item.current;document.getElementById('productSubmit').textContent='SKUを更新';document.getElementById('cancelEdit').hidden=false;document.getElementById('productForm').scrollIntoView({behavior:'smooth',block:'center'})}
@@ -150,8 +59,7 @@ document.getElementById('eventForm').addEventListener('submit',async event=>{eve
 document.getElementById('cancelEventEdit').addEventListener('click',resetEventForm);
 document.getElementById('salesTemplate').addEventListener('click',event=>{event.preventDefault();downloadCsv('No10_週次販売数テンプレート.csv',salesHeaders)});
 document.getElementById('productTemplate').addEventListener('click',event=>{event.preventDefault();downloadCsv('No10_新規SKUテンプレート.csv',productHeaders)});
-document.getElementById('eventTemplate').addEventListener('click',event=>{event.preventDefault();downloadCsv('No10_セール・イベント予定テンプレート.csv',eventHeaders)});
 document.querySelectorAll('.csv-import').forEach(button=>button.dataset.label=button.textContent);
-setupCsvImport('sales');setupCsvImport('products');setupCsvImport('events');
+setupCsvImport('sales');setupCsvImport('products');
 document.getElementById('salesForm').addEventListener('submit',async event=>{event.preventDefault();const item=skuData.find(value=>value.id===document.getElementById('salesSku').value),date=document.getElementById('salesDate').value,units=Number(document.getElementById('salesUnits').value);if(!item||!databaseReady)return;const logs=item.salesLog||(item.salesLog=[]),existing=logs.find(log=>log.date===date),delta=units-(existing?.units||0);if(item.current-delta<0){messageFor('salesMessage','販売数が現在庫を超えています。',true);return}const before=clone(skuData);item.current-=delta;if(existing)existing.units=units;else logs.push({date,units});logs.sort((a,b)=>a.date.localeCompare(b.date));item.history=logs.slice(-4).map(log=>log.units);if(item.start>0)item.curve[4]=Math.round((item.start-item.current)/item.start*1000)/10;try{await saveState();messageFor('salesMessage',`${item.name}の在庫を${item.current}点に更新しました。`);renderRows()}catch(error){skuData=before;messageFor('salesMessage','保存できませんでした。接続設定を確認してください。',true)}});
 initialize();
