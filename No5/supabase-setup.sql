@@ -27,11 +27,7 @@ create policy "Public can update demo state"
 -- No.10 mock: shared SKU forecast demo data (stored separately from No.5)
 create table if not exists public.inventory_forecast_state (
   id smallint primary key default 1 check (id = 1),
-  payload jsonb not null check (
-    jsonb_typeof(payload) = 'object'
-    and jsonb_typeof(payload->'skus') = 'array'
-    and (not (payload ? 'events') or jsonb_typeof(payload->'events') = 'array')
-  ),
+  payload jsonb not null check (jsonb_typeof(payload) = 'array'),
   updated_at timestamptz not null default now()
 );
 
