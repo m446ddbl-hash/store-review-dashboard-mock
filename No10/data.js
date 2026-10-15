@@ -1,3 +1,4 @@
+// Updated 2026-10-15: keep the applicable event list under the forecast result field.
 const demoSkuData=[
  {store:'A',category:'アウター',id:'AW26-OUT-001-BLK-M',name:'ライトダウンジャケット',variant:'黒 M',start:80,current:18,history:[14,15,16,17],markdown:0,markdownDate:null,sellout:'2026-10-18',endStock:0,reason:'直近の販売ペースでシーズン終了前に完売する想定です。',curve:[0,17.5,36.3,56.3,77.5,92.5,100,100,100,100,100,100,100,100,100,100]},
  {store:'B',category:'アウター',id:'AW26-OUT-002-NVY-M',name:'ウールブレンドコート',variant:'紺 M',start:100,current:68,history:[8,8,8,8],markdown:20,markdownDate:'2026-10-15',sellout:'2026-11-30',endStock:0,reason:'プロパーの販売ペースではシーズン終了時に在庫が残る想定です。',curve:[0,8,16,24,32,36,46,56,66,76,86,96,100,100,100,100]},
