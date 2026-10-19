@@ -45,12 +45,13 @@
     }
 
     .schedule tfoot td{height:46px;font-size:12px;border-top:1px solid #c3d3db}.schedule tfoot tr:nth-child(1) td{bottom:92px}.schedule tfoot tr:nth-child(2) td{bottom:46px}.schedule tfoot tr:nth-child(3) td{bottom:0}.schedule tfoot .staffing-D td{background:#e3f2ef;color:#145d53}.schedule tfoot .staffing-N td{background:#ece6f8;color:#483078}.schedule tfoot .staffing-R td{background:#e7eff8;color:#285578}.staffing-row-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750;line-height:1.2}.staffing-row-title .badge-shift{width:19px;height:18px;font-size:10px}.staffing-row-note{display:block;margin-top:3px;font-size:9px;line-height:1.1;color:#566f7c;font-weight:500}.staffing-values{display:inline-flex;align-items:baseline;justify-content:center;gap:2px;white-space:nowrap;font-variant-numeric:tabular-nums}.staffing-values b{font-size:14px;font-weight:800}.staffing-values .need-count{font-size:12px;font-weight:650;color:inherit}.staffing-divider{font-size:11px;opacity:.65;font-weight:400}.staffing-unit{font-size:10px;font-weight:500;opacity:.8}.schedule tfoot .staffing-shortage{background:#ffe1cf!important;color:#973c14!important;box-shadow:inset 0 0 0 2px #db8850}.staffing-shortage .need-count{color:inherit}
-  </style>
+  .back-to-list{display:inline-block;color:#155f59;font-weight:700;text-decoration:none;padding:7px 9px;border:1px solid #b7d2ce;border-radius:6px;background:#fff}.back-to-list:hover{background:#e4f2ef}.back-to-list:focus-visible{outline:3px solid #dca52b;outline-offset:2px}
+</style>
 </head>
 <body>
 <div class="app">
   <main>
-    <div class="topline"><div class="crumb">看護・介護 <span>›</span> <b>勤務表</b></div><div class="user"><div class="avatar">管</div><span>勤務表作成担当</span></div></div>
+    <div class="topline"><div class="crumb"><a class="back-to-list" href="../index.html">← 看護モック一覧へ</a><span>｜</span>看護・介護 <span>›</span> <b>勤務表</b></div><div class="user"><div class="avatar">管</div><span>勤務表作成担当</span></div></div>
     <div class="page-head"><div><div class="eyebrow">勤務計画 / MONTHLY SCHEDULE</div><h1 id="pageTitle">2026年10月 勤務表</h1><div class="subline" id="pageSubtitle">条件を見ながら勤務表案を調整できます</div></div><div class="head-actions"><span class="save-status" id="saveStatus" aria-live="polite">未保存</span><button class="btn" id="undoBtn" type="button" disabled>↶ 1つ前に戻す</button><button class="btn" id="saveBtn" title="勤務表と条件をこのブラウザに保存します">このブラウザに保存</button><button class="btn primary" id="generateBtn">✦　条件に合わせて勤務表案を作成</button></div></div>
     <div class="workflow-status" id="workflowStatus" role="status" aria-live="polite"><div class="workflow-mark" id="workflowMark">!</div><div><strong id="workflowTitle">勤務表を確認してください</strong><div id="workflowDetail"></div></div></div>
     <div class="month-picker" aria-label="表示する年月">
