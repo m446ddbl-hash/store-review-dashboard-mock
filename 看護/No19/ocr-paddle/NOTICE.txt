@@ -1,0 +1,22 @@
+PaddleOCR.js 0.4.2 and PP-OCRv5 mobile detection/recognition models
+Copyright PaddlePaddle Authors. Apache License 2.0.
+https://github.com/PaddlePaddle/PaddleOCR
+
+ONNX Runtime Web 1.24.3 (worker runtime)
+Copyright Microsoft Corporation. MIT License.
+https://github.com/microsoft/onnxruntime
+
+OpenCV.js / @techstark/opencv-js 4.10.0-release.1
+Apache License 2.0. See licenses/OpenCV.txt and bundled copyright notices.
+
+js-yaml 4.3.2. Copyright Vitaly Puzrin and contributors. MIT License.
+clipper-lib 6.4.2. Copyright Angus Johnson 2010-2017 and Timo.
+Boost Software License 1.0, with JSBN portions copyright Tom Wu.
+Copyright notices are retained in the bundled JavaScript.
+
+The non-worker SDK bundle also includes ONNX Runtime Web 1.30.0
+(MIT License) from PaddleOCR.js's declared dependency range; inference
+runs exclusively in the pinned 1.24.3 worker with matching WASM files.
+
+All model and runtime assets are hosted alongside this Site. Uploaded
+images are processed locally in a Web Worker, not sent to an OCR API.
