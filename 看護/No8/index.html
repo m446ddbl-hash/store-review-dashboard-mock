@@ -46,21 +46,24 @@
 
     .schedule tfoot td{height:46px;font-size:12px;border-top:1px solid #c3d3db}.schedule tfoot tr:nth-child(1) td{bottom:92px}.schedule tfoot tr:nth-child(2) td{bottom:46px}.schedule tfoot tr:nth-child(3) td{bottom:0}.schedule tfoot .staffing-D td{background:#e3f2ef;color:#145d53}.schedule tfoot .staffing-N td{background:#ece6f8;color:#483078}.schedule tfoot .staffing-R td{background:#e7eff8;color:#285578}.staffing-row-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750;line-height:1.2}.staffing-row-title .badge-shift{width:19px;height:18px;font-size:10px}.staffing-row-note{display:block;margin-top:3px;font-size:9px;line-height:1.1;color:#566f7c;font-weight:500}.staffing-values{display:inline-flex;align-items:baseline;justify-content:center;gap:2px;white-space:nowrap;font-variant-numeric:tabular-nums}.staffing-values b{font-size:14px;font-weight:800}.staffing-values .need-count{font-size:12px;font-weight:650;color:inherit}.staffing-divider{font-size:11px;opacity:.65;font-weight:400}.staffing-unit{font-size:10px;font-weight:500;opacity:.8}.schedule tfoot .staffing-shortage{background:#ffe1cf!important;color:#973c14!important;box-shadow:inset 0 0 0 2px #db8850}.staffing-shortage .need-count{color:inherit}
     .previous-day{background:#edf1f4!important;color:#586e79!important}.previous-day .badge-shift{opacity:.75}.previous-divider{border-right:2px solid #9db0bb!important}.data-tools{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.sync-fields label{display:block;font-size:12px;margin:12px 0 4px}.sync-fields input{width:100%;padding:9px;border:1px solid #b5cbd4;border-radius:6px}.sync-status{font-size:12px;line-height:1.6;margin-top:12px;color:#395d69}
-  </style>
+  .back-to-list{color:var(--teal);font-weight:700;text-decoration:none}.back-to-list:hover{text-decoration:underline}
+</style>
 </head>
 <body>
 <div class="app">
   <main>
-    <div class="topline"><div class="crumb"><a href="../index.html" style="color:inherit;font-weight:700;margin-right:10px">← 看護モック一覧へ</a>｜看護・介護 <span>›</span> <b>勤務表</b></div><div class="user"><div class="avatar">管</div><span>勤務表作成担当</span></div></div>
-    <div class="page-head"><div><div class="eyebrow">勤務計画 / MONTHLY SCHEDULE</div><h1 id="pageTitle">2026年10月 勤務表</h1><div class="subline" id="pageSubtitle">条件を見ながら勤務表案を調整できます</div></div><div class="head-actions"><span class="save-status" id="saveStatus" aria-live="polite">未保存</span><button class="btn" id="undoBtn" type="button" disabled>↶ 1つ前に戻す</button><button class="btn" id="saveBtn" title="勤務表と条件をこのブラウザに保存します">このブラウザに保存</button><button class="btn primary" id="generateBtn">✦　条件に合わせて勤務表案を作成</button></div></div>
+    <div class="topline"><div class="crumb"><a class="back-to-list" href="../index.html">← 看護モック一覧へ</a><span>｜</span>看護・介護 <span>›</span> <b>勤務表</b></div><div class="user"><div class="avatar">管</div><span>勤務表作成担当</span></div></div>
+    <div class="page-head"><div><div class="eyebrow">勤務計画 / MONTHLY SCHEDULE</div><h1 id="pageTitle">2026年10月 勤務表</h1><div class="subline" id="pageSubtitle">条件を見ながら勤務表案を調整できます</div></div><div class="head-actions"><span class="save-status" id="saveStatus" aria-live="polite">未保存</span><button class="btn" id="undoBtn" type="button" disabled>↶ 1つ前に戻す</button><button class="btn" id="saveBtn" title="勤務表と条件を保存します">保存</button><button class="btn primary" id="generateBtn">✦　条件に合わせて勤務表案を作成</button></div></div>
     <div class="workflow-status" id="workflowStatus" role="status" aria-live="polite"><div class="workflow-mark" id="workflowMark">!</div><div><strong id="workflowTitle">勤務表を確認してください</strong><div id="workflowDetail"></div></div></div>
     <div class="month-picker" aria-label="表示する年月">
       <label for="yearSelect">年</label><select id="yearSelect" aria-label="年"><option value="2026">2026年</option></select>
       <label for="monthSelect">月</label><select id="monthSelect" aria-label="月"><option value="8">8月（作成済み）</option><option value="9">9月（作成済み）</option><option value="10" selected>10月（作成中）</option></select>
-      <div class="data-tools"><button class="btn" type="button" id="exportData">データを書き出す</button><button class="btn" type="button" id="importData">データを読み込む</button><input id="importFile" type="file" accept="application/json,.json" hidden><button class="btn" type="button" id="cloudOpen">Supabase 保存・読込</button></div><div class="month-meta" id="monthMeta">サンプルチーム　｜　職員 12名</div>
+      <div class="data-tools"><button class="btn" type="button" id="exportData">データを書き出す</button><button class="btn" type="button" id="importData">データを読み込む</button><input id="importFile" type="file" accept="application/json,.json" hidden><button class="btn" type="button" id="cloudOpen">クラウド設定</button></div><div class="month-meta" id="monthMeta">サンプルチーム　｜　職員 12名</div>
     </div>
+    <div class="workflow-status hidden" id="boundaryNotice" role="status"></div>
     <div class="view-tabs" role="tablist" aria-label="表示する画面"><button type="button" class="view-tab active" id="scheduleTab" role="tab" aria-selected="true" aria-controls="scheduleView">月間勤務表</button><button type="button" class="view-tab" id="workCheckTab" role="tab" aria-selected="false" aria-controls="workCheckView">勤務時間・休日チェック</button><button type="button" class="view-tab" id="requestTab" role="tab" aria-selected="false" aria-controls="requestView">人員管理</button></div>
     <div id="scheduleView" role="tabpanel" aria-labelledby="scheduleTab">
+    <div class="panel hidden" id="generationReport" aria-live="polite"><div class="panel-body"><strong id="generationTitle"></strong><p id="generationDetail"></p><button class="btn" id="reviewRemaining" type="button">残った警告を確認</button></div></div>
     <section class="stats" id="overview" aria-label="勤務バランス">
       <div class="stat accent"><div class="stat-label">必要人数の充足率 <span>◉</span></div><div class="stat-value" id="coverageRate">—<span class="stat-note">%</span></div></div>
       <div class="stat danger" id="warningStat"><div class="stat-label">要確認の警告 <span>⚠</span></div><div class="stat-value" id="warningCount">—<span class="stat-note">件</span></div></div>
@@ -126,7 +129,7 @@
     <section class="panel hidden" id="workCheckView" role="tabpanel" aria-labelledby="workCheckTab">
       <div class="panel-head"><div><div class="panel-title">勤務時間・法定休日チェック（目安）</div><div class="panel-desc">職員ごとの勤務時間と休日状況。名前を押すと、個人の月間勤怠表を開けます。</div></div><span class="tag">仮ルール</span></div>
       <div class="panel-body">
-        <div class="work-intro"><strong>この画面の計算前提：</strong>2交代は日勤9:00〜21:30、夜勤21:00〜翌9:30（各拘束12時間30分）とし、交替時は30分重なる想定です。日勤・夜勤共通の休憩時間（1.5時間または2時間）を差し引いた実働時間を勤務時間の集計と自動作成時の均等化に使います。平常勤務は9:00〜18:00（休憩1時間、実働8時間）の想定で、勤務表のセルから手動設定します。自動作成では割り当てません。一般的な休日規定には「毎週少なくとも1回」または「4週間を通じ4日以上」の考え方があります。この画面では「休」を0時〜24時の終日休みとして数え、「明け」は数えません。この表示は月内の完全な月曜〜日曜で週1日以上あるかと、月内に終日休みが4日以上あるかを分けて示します。月4日は確認用の参考目安で、4週間単位の判定とは異なります。月の外側にある部分週は対象外です。実際の法令適合を判定するものではありません。勤務間の休息、変形労働時間制などは反映していません。<a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/roudouzikan/index.html" target="_blank" rel="noopener noreferrer">厚生労働省：労働時間・休日の基礎情報 ↗</a></div>
+        <div class="work-intro"><strong>この画面の計算前提：</strong>2交代は日勤9:00〜21:30、夜勤21:00〜翌9:30（各拘束12時間30分）とし、交替時は30分重なる想定です。日勤・夜勤共通の休憩時間（1.5時間または2時間）を差し引いた実働時間を勤務時間の集計と自動作成時の均等化に使います。平常勤務は9:00〜18:00（休憩1時間、実働8時間）の想定で、勤務表のセルから手動設定します。自動作成では割り当てません。一般的な休日規定には「毎週少なくとも1回」または「4週間を通じ4日以上」の考え方があります。この画面では「休」を0時〜24時の終日休みとして数え、「明け」は数えません。この表示は月またぎを含む月曜〜日曜で週1日以上あるかと、月内に終日休みが4日以上あるかを分けて示します。月4日は確認用の参考目安で、4週間単位の判定とは異なります。前後月の登録データも参照し、未登録の範囲は未確認と表示します。前日が夜勤の「休」は終日休みに数えません。実際の法令適合を判定するものではありません。勤務間の休息、変形労働時間制などは反映していません。<a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/roudouzikan/index.html" target="_blank" rel="noopener noreferrer">厚生労働省：労働時間・休日の基礎情報 ↗</a></div>
         <div class="work-controls">
           <div class="work-control"><strong>日勤</strong> 9:00〜21:30 ／ <strong>夜勤</strong> 21:00〜翌9:30<br><span class="panel-desc">各拘束12時間30分・引継ぎ時間は前後各30分重複</span></div>
           <div class="work-control"><label for="shiftBreak">2交代の休憩時間（日勤・夜勤共通）</label><select id="shiftBreak"><option value="1.5">1.5時間（実働11時間）</option><option value="2" selected>2時間（実働10.5時間）</option></select></div>
@@ -148,7 +151,7 @@
     <div class="personal-table-scroll" id="personalTableView"><table class="personal-table" id="personalTable" aria-label="個人の月間勤怠予定"></table></div>
     <div class="personal-calendar-view hidden" id="personalCalendarView"><div class="request-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div class="personal-calendar" id="personalCalendar"></div></div>
   </dialog>
-  <dialog class="reset-dialog" id="cloudDialog"><h2>Supabase 保存・読込</h2><p>設定済みの Supabase にログインして、このブラウザの全月データを保存・読込できます。接続設定とログインは端末ごとです。</p><div class="sync-fields"><label for="cloudUrl">プロジェクト URL</label><input id="cloudUrl" type="url" placeholder="https://...supabase.co"><label for="cloudKey">公開可能キー（publishable / anon）</label><input id="cloudKey" type="text" autocomplete="off"><label for="cloudEmail">メールアドレス</label><input id="cloudEmail" type="email" autocomplete="username"><label for="cloudPassword">パスワード</label><input id="cloudPassword" type="password" autocomplete="current-password"></div><div class="data-tools"><button class="btn" id="cloudLogin" type="button">ログイン</button><button class="btn" id="cloudSave" type="button" disabled>クラウドに保存</button><button class="btn" id="cloudLoad" type="button" disabled>クラウドから読込</button><button class="btn" id="cloudLogout" type="button" disabled>ログアウト</button></div><div class="sync-status" id="cloudStatus" aria-live="polite">未接続。Supabase の設定が必要です。</div><div class="dialog-actions"><button class="btn" type="button" id="cloudClose">閉じる</button></div></dialog>
+  <dialog class="reset-dialog" id="cloudDialog"><h2>クラウド設定</h2><p>管理者向けの接続設定です。設定済みの場合、利用者はログイン不要で保存できます。</p><div class="sync-fields"><label for="cloudUrl">プロジェクト URL</label><input id="cloudUrl" type="url" placeholder="https://...supabase.co"><label for="cloudKey">公開可能キー（publishable / anon）</label><input id="cloudKey" type="text" autocomplete="off"></div><div class="data-tools"><button class="btn" id="cloudConfigure" type="button">接続設定を保存</button><button class="btn" id="cloudSave" type="button">クラウドに保存</button><button class="btn" id="cloudLoad" type="button">クラウドから読込</button></div><div class="sync-status" id="cloudStatus" aria-live="polite">未接続</div><p>クラウドのデータはブラウザごとに分かれます。ブラウザデータを消すと読み戻せなくなるため、データを書き出して保管できます。</p><div class="dialog-actions"><button class="btn" type="button" id="cloudClose">閉じる</button></div></dialog>
   <dialog class="reset-dialog" id="resetDialog" aria-labelledby="resetDialogTitle"><h2 id="resetDialogTitle">サンプルを初期状態に戻しますか？</h2><p>このブラウザに保存した3か月分の勤務表と条件を初期状態に戻します。調整した内容は失われます。</p><div class="dialog-actions"><button class="btn" id="cancelResetBtn" type="button" autofocus>キャンセル</button><button class="btn destructive" id="confirmResetBtn" type="button">初期状態に戻す</button></div></dialog>
   <div class="shift-menu hidden" id="shiftMenu" role="menu" aria-label="勤務区分を選択"><button type="button" role="menuitemradio" data-shift="D" aria-checked="false"><i class="badge-shift shift-D">日</i>日勤</button><button type="button" role="menuitemradio" data-shift="R" aria-checked="false"><i class="badge-shift shift-R">平</i>平常勤務（9:00–18:00）</button><button type="button" role="menuitemradio" data-shift="N" aria-checked="false"><i class="badge-shift shift-N">夜</i>夜勤</button><button type="button" role="menuitemradio" data-shift="A" aria-checked="false"><i class="badge-shift shift-A">明</i>明け</button><button type="button" role="menuitemradio" data-shift="O" aria-checked="false"><i class="badge-shift shift-O">休</i>休み</button></div>
 </div>
@@ -176,6 +179,7 @@
   const STORAGE_KEY='kangoNo8WorkshiftAssist.v1';
   let monthCache={};
   let hasSavedState=false;
+  let editRevision=0, saving=false;
   const $=id=>document.getElementById(id);
   const sampleControls={dayNeed:'4',nightNeed:'2',streakLimit:'4',balanceHours:true,balanceNights:true,respectOffs:true,avoidAfterNight:true,leaderRequired:true,nightLeaderRequired:true,shiftBreak:'2',regularHours:'8'};
   const fmtDay=d=>String(d).padStart(2,'0');
@@ -200,16 +204,23 @@
   function getTwoShiftHours(){return Math.max(0,12.5-Number($('shiftBreak').value));}
   function monthKey(){return `${state.year}-${String(state.month).padStart(2,'0')}`;}
   function controlSnapshot(){return {dayNeed:$('dayNeed').value,nightNeed:$('nightNeed').value,streakLimit:$('streakLimit').value,balanceHours:$('balanceHours').checked,balanceNights:$('balanceNights').checked,respectOffs:$('respectOffs').checked,avoidAfterNight:$('avoidAfterNight').checked,leaderRequired:$('leaderRequired').checked,nightLeaderRequired:$('nightLeaderRequired').checked,shiftBreak:$('shiftBreak').value,regularHours:$('regularHours').value};}
-  function priorSignature(){const prev=previousSnapshot();return prev?JSON.stringify((prev.staff||staffBaseline).map((x,i)=>[x.id,...(prev.grid[i]||[]).slice(-5)])):null;}
+  function priorSignature(){const prev=previousSnapshot();return prev?JSON.stringify((prev.staff||staffBaseline).map((x,i)=>[x.id,...(prev.grid[i]||[]).slice(-7)])):null;}
   let priorAtCreation=null;
   function currentSnapshot(){return {priorAtCreation,generatorVersion:8,grid:state.grid.map(row=>[...row]),generated:state.generated,dirty:state.dirty,requestDrafts:JSON.parse(JSON.stringify(requestDraftsForMonth())),staff:copyStaff(),controls:controlSnapshot()};}
   function cacheCurrentMonth(){monthCache[monthKey()]=currentSnapshot();}
   function showSaveStatus(text,unsaved=false){$('saveStatus').textContent=text;$('saveStatus').classList.toggle('unsaved',unsaved);updateOperationState();}
-  function markUnsaved(){hasSavedState=false;showSaveStatus('未保存の変更あり',true);}
+  function markUnsaved(){editRevision++;hasSavedState=false;showSaveStatus('未保存の変更あり',true);}
   function applyControls(c){const values={...sampleControls,...c};values.streakLimit=clamp(Number(values.streakLimit)||4,1,4);['dayNeed','nightNeed','streakLimit','shiftBreak','regularHours'].forEach(id=>{$(id).value=values[id];});['balanceHours','balanceNights','respectOffs','avoidAfterNight','leaderRequired','nightLeaderRequired'].forEach(id=>{$(id).checked=!!values[id];});}
   function restoreSnapshot(snapshot){state.requestDrafts[monthKey()]=JSON.parse(JSON.stringify(snapshot.requestDrafts||{}));staff.splice(0,staff.length,...(snapshot.staff||staffBaseline).map(x=>({...x,offs:[...(x.offs||[])]})));applyControls(snapshot.controls);state.days=new Date(state.year,state.month,0).getDate();state.grid=snapshot.grid?Array.from({length:staff.length},(_,i)=>Array.from({length:state.days},(_,d)=>snapshot.grid?.[i]?.[d]||'O')):initialGrid();state.generated=!!snapshot.generated;state.dirty=!!snapshot.dirty;priorAtCreation=Object.hasOwn(snapshot,'priorAtCreation')?snapshot.priorAtCreation:priorSignature();}
   function loadSavedState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved?.months){monthCache=saved.months;const key=saved.current||'2026-10';let migrated=false;for(const snapshot of Object.values(monthCache)){if((snapshot.generatorVersion||0)<8){if(snapshot.staff)snapshot.staff=snapshot.staff.map(s=>{const {cap,...record}=s;return (snapshot.generatorVersion||0)<7?{...record,leader:staffBaseline.find(b=>b.id===s.id)?.leader??s.leader}:record;});snapshot.grid=null;snapshot.generated=false;snapshot.dirty=false;snapshot.generatorVersion=8;migrated=true;}}const [year,month]=key.split('-').map(Number);if(year&&month){state.year=year;state.month=month;}const snapshot=monthCache[key];if(snapshot)restoreSnapshot(snapshot);else{applyControls(sampleControls);state.days=new Date(state.year,state.month,0).getDate();state.grid=initialGrid();}if(migrated){hasSavedState=false;showSaveStatus('勤務条件に合わせてサンプルを更新しました。確認後に保存してください',true);}else if(snapshot){hasSavedState=true;showSaveStatus('保存データを復元');}else showSaveStatus('未保存',true);}else{seedSampleMonths();state.grid=initialGrid();priorAtCreation=priorSignature();state.generated=false;showSaveStatus('未保存',true);}}catch(e){state.grid=initialGrid();showSaveStatus('保存データを読み込めません',true);} $('yearSelect').value=String(state.year);$('monthSelect').value=String(state.month);}
-  function saveCurrentState(){try{cacheCurrentMonth();localStorage.setItem(STORAGE_KEY,JSON.stringify({current:monthKey(),months:monthCache}));hasSavedState=true;showSaveStatus('保存済み');}catch(e){hasSavedState=false;showSaveStatus('保存できませんでした',true);}}
+  async function saveCurrentState(){
+    if(saving)return;saving=true;$('saveBtn').disabled=true;
+    const revision=editRevision;
+    try{const data=JSON.parse(JSON.stringify(exportPayload()));localStorage.setItem(STORAGE_KEY,JSON.stringify({current:data.current,months:data.months}));hasSavedState=true;showSaveStatus('このブラウザに保存済み');
+      if(hasCloudConfig()){try{await cloudSaveData(data);if(revision===editRevision)showSaveStatus('ブラウザとクラウドに保存済み');}catch(e){if(revision===editRevision)showSaveStatus('ブラウザに保存済み・クラウド未保存',true);$('cloudStatus').textContent=e.message;}}
+    }catch(e){hasSavedState=false;showSaveStatus('保存できませんでした',true);}finally{saving=false;$('saveBtn').disabled=false;}
+  }
+  function confirmReplace(message){return confirm((hasSavedState?'':'未保存の変更があります。\n')+message);}
   function conditionSignature(){return JSON.stringify({staff:copyStaff(),controls:controlSnapshot()});}
   function undoHistory(){return state.undoByMonth[monthKey()]??=[];}
   function rememberRoster(label){const history=undoHistory();history.push({label,grid:state.grid.map(row=>[...row]),generated:state.generated,dirty:state.dirty,conditions:conditionSignature()});if(history.length>20)history.shift();}
@@ -220,6 +231,7 @@
   }
   function generate(){
     if(pendingRequestCount())return;
+    if(!confirmReplace('表示中の勤務表を条件に合わせて作り直します。手修正した配置も置き換わります。続けますか？'))return;
     const next=buildSchedule();if(state.dirty||!state.generated||JSON.stringify(next)!==JSON.stringify(state.grid))rememberRoster('勤務表案の作成');
     state.view='schedule';state.warningFocus=null;priorAtCreation=priorSignature();state.grid=next;state.generated=true;state.dirty=false;markUnsaved();render();
   }
@@ -334,6 +346,13 @@
       if(previousRow(i).at(-1)==='N'&&!['N','A'].includes(state.grid[i][0]))warns.push({type:'夜勤明け',severity:'red',day:1,staffIndex:i,title:`${staff[i].name}さんの前月末夜勤の翌日が明けではありません`,desc:'前月末の夜勤からの並びを確認してください'});
       if(!staff[i].night&&state.grid[i].some(x=>x==='N')) warns.push({type:'夜勤可否',severity:'red',day:state.grid[i].findIndex(x=>x==='N')+1,staffIndex:i,title:`${staff[i].name}さんに夜勤が配置`,desc:'夜勤不可の設定と勤務表が一致していません'});
     }
+    for(const w of warns){
+      if(!['人員不足','役割不足'].includes(w.type))continue;
+      const shift=w.title.includes('夜勤')?'N':'D',pool=staff.filter(s=>(shift!=='N'||s.night)&&(w.type!=='役割不足'||s.leader));
+      const off=pool.filter(s=>s.offs.includes(w.day)).length;
+      const candidates=staff.filter((s,i)=>(w.type!=='役割不足'||s.leader)&&canSuggestShift(i,w.day-1,shift)).length;
+      w.desc+=`｜対象職員 ${pool.length}名・うち希望休 ${off}名。休みから追加できる安全側の候補 ${candidates}名（連勤・夜勤明け・翌日配置を確認）。${candidates?'修正候補を確認してください':'交代案または必要人数・役割・希望休の条件を確認してください'}`;
+    }
     return warns;
   }
   function canSuggestShift(i,d,shift){
@@ -397,7 +416,7 @@
     $('generateBtn').classList.toggle('hidden',historical);$('resetBtn').classList.toggle('hidden',historical);
     $('scheduleStatus').textContent=historical?'作成済み':state.dirty?'条件未反映':state.generated?'案を作成済み':'サンプル案';
     updateOperationState();renderSchedule();renderRequests();renderWorkCheck();
-    const warns=getWarnings();renderWarnings(warns);renderSuggestions(getSuggestions(warns));renderStats(warns);
+    const warns=getWarnings();renderWarnings(warns);renderSuggestions(getSuggestions(warns));renderStats(warns);renderReview(warns);
     $('dirtyNote').textContent=state.dirty?'条件を変更しました。勤務表案を作成すると反映されます。':'';
     $('requestView').classList.toggle('hidden',state.view!=='requests');$('requestTab').classList.toggle('active',state.view==='requests');$('requestTab').setAttribute('aria-selected',String(state.view==='requests'));
     $('scheduleView').classList.toggle('hidden',state.view!=='schedule');$('workCheckView').classList.toggle('hidden',state.view!=='workCheck');
@@ -409,7 +428,7 @@
     $('workflowStatus').classList.toggle('saved',saved);
     $('workflowMark').textContent=saved?'✓':state.dirty||pending?'!':'○';
     $('workflowTitle').textContent=pending?'希望休の入力が条件に未反映です':state.dirty?'条件の変更が勤務表に未反映です':hasSavedState?'このブラウザに保存済みです':'勤務表はこのブラウザに未保存です';
-    $('workflowDetail').textContent=pending?`${pending}名分の入力${hasSavedState?'は保存済みです':'があります'}。人員管理タブで「希望休を条件に反映」を押してから勤務表案を作成してください。`:state.dirty?(hasSavedState?'条件は保存しました。「勤務表案を作成」で勤務表に反映してください。':'「勤務表案を作成」で条件を反映し、確認してから保存してください。'):hasSavedState?'このブラウザで再読み込みしても、勤務表と条件を復元できます。':state.generated?'調整内容を残すには「このブラウザに保存」を押してください。':'サンプル案を表示しています。条件と勤務表を確認して、必要なら調整・保存してください。';
+    $('workflowDetail').textContent=pending?`${pending}名分の入力${hasSavedState?'は保存済みです':'があります'}。人員管理タブで「希望休を条件に反映」を押してから勤務表案を作成してください。`:state.dirty?(hasSavedState?'条件は保存しました。「勤務表案を作成」で勤務表に反映してください。':'「勤務表案を作成」で条件を反映し、確認してから保存してください。'):hasSavedState?'このブラウザで再読み込みしても、勤務表と条件を復元できます。':state.generated?'調整内容を残すには「保存」を押してください。':'サンプル案を表示しています。条件と勤務表を確認して、必要なら調整・保存してください。';
     $('generateBtn').disabled=pending>0;$('generateBtn').title=pending?'人員管理タブで入力内容を条件に反映してください':'';
     $('generateBtn').classList.toggle('attention',state.dirty&&!pending);
     $('generateBtn').classList.toggle('primary',state.dirty||hasSavedState);
@@ -420,7 +439,7 @@
     const focused=state.warningFocus,today=new Date();
     const dayClass=d=>{const w=weekday(d);return `${w==='月'?'week-start':''} ${w==='土'?'sat':w==='日'?'sun':''} ${focused?.day===d?'focus-column':''}`;};
     let html='<thead><tr><th>職員／日付</th>';
-    const prior=previousSnapshot(),previousDate=new Date(state.year,state.month-1,0),previousDays=prior?Math.min(4,previousDate.getDate()):0;
+    const prior=previousSnapshot(),previousDate=new Date(state.year,state.month-1,0),previousDays=prior?Math.min(3,previousDate.getDate()):0;
     for(let d=previousDays-1;d>=0;d--)html+=`<th class="previous-day ${d===0?'previous-divider':''}">${previousDate.getDate()-d}<span class="day-label">前月</span></th>`;
     for(let d=1;d<=state.days;d++){
       const isToday=today.getFullYear()===state.year&&today.getMonth()+1===state.month&&today.getDate()===d;
@@ -464,23 +483,51 @@
       if(target){target.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});if(target.tagName==='BUTTON')target.focus({preventScroll:true});}
     });
   }
+  function shiftOn(i,date){
+    const key=`${date.getFullYear()}-${fmtDay(date.getMonth()+1)}`;
+    if(key===monthKey())return state.grid[i]?.[date.getDate()-1];
+    const snap=monthCache[key],index=snap?.staff?.findIndex(s=>s.id===staff[i].id);
+    return index>=0?snap.grid?.[index]?.[date.getDate()-1]:undefined;
+  }
+  function isFullRest(i,date){
+    const value=shiftOn(i,date);if(!value)return null;if(value!=='O')return false;
+    const before=new Date(date);before.setDate(before.getDate()-1);const previous=shiftOn(i,before);
+    return previous?previous!=='N':null;
+  }
+  function weeksForMonth(){
+    const weeks=[],last=new Date(state.year,state.month,0),cursor=new Date(state.year,state.month-1,1);
+    cursor.setDate(cursor.getDate()-(cursor.getDay()+6)%7);
+    while(cursor<=last){const start=new Date(cursor),end=new Date(cursor);end.setDate(end.getDate()+6);weeks.push({start,end});cursor.setDate(cursor.getDate()+7);}return weeks;
+  }
+  function weekRest(i,week){let count=0,unknown=false;for(let d=new Date(week.start);d<=week.end;d.setDate(d.getDate()+1)){const rest=isFullRest(i,d);if(rest===null)unknown=true;else if(rest)count++;}return unknown?null:count;}
+  function renderReview(warns){
+    const changed=priorAtCreation!==priorSignature(),date=new Date(state.year,state.month,1),nextKey=`${date.getFullYear()}-${fmtDay(date.getMonth()+1)}`;
+    const next=monthCache[nextKey],signature=JSON.stringify(staff.map((s,i)=>[s.id,...state.grid[i].slice(-7)]));
+    const affected=next&&next.priorAtCreation!==signature;
+    $('boundaryNotice').classList.toggle('hidden',!changed&&!affected);
+    $('boundaryNotice').textContent=[changed?'前月末が変更されています。最新の前月データで連勤・夜勤明け・休日を再チェックしています。勤務表の配置は自動変更しません。':'',affected?`${date.getMonth()+1}月の月初にも影響があります。年月を切り替えると最新の勤務で再チェックします。`:''].filter(Boolean).join(' ');
+    $('generationReport').classList.toggle('hidden',!state.generated);
+    $('generationTitle').textContent=state.dirty?'条件変更後のチェック結果':warns.length?`現在の案に未解決の警告 ${warns.length}件`:'現在の案：配置・連勤の警告なし';
+    const counts={};warns.forEach(w=>counts[w.type]=(counts[w.type]||0)+1);
+    $('generationDetail').textContent=warns.length?Object.entries(counts).map(([k,v])=>`${k} ${v}件`).join(' ／ ')+'。不足日の配置候補と条件を警告一覧で確認してください。簡易ロジックで作成した案のため、別の組み合わせで解決できる場合があります。':'有効な配置条件のチェックを通過しています。休日・未登録の月またぎは「勤務時間・休日チェック」で別途確認してください。';
+    $('reviewRemaining').hidden=!warns.length;
+  }
   function renderWorkCheck(){
     const dayHours=getTwoShiftHours(),nightHours=getTwoShiftHours(),regularHours=Math.max(0,Number($('regularHours').value)||0);
-    const first=new Date(state.year,state.month-1,1),last=new Date(state.year,state.month,0);
-    const fullWeeks=[];
-    let cursor=new Date(first);while(cursor.getDay()!==1)cursor.setDate(cursor.getDate()+1);
-    while(cursor<=last){const sunday=new Date(cursor);sunday.setDate(sunday.getDate()+6);if(sunday<=last)fullWeeks.push({start:new Date(cursor),end:sunday});cursor.setDate(cursor.getDate()+7);}
-    $('weekModelMeta').textContent=`対象：月内の完全な週 ${fullWeeks.length}週（${state.year}年${state.month}月）`;
-    let html='<thead><tr><th>職員</th><th>日勤</th><th>平常</th><th>夜勤</th><th>出勤<br>3勤務区分</th><th>希望休<br>勤務表上の休</th><th>通常休</th><th>月間勤務時間</th><th>週1日<br>（月内の完全週）</th><th>月4日以上<br>（参考目安）</th></tr></thead><tbody>';
+    const fullWeeks=weeksForMonth();
+    $('weekModelMeta').textContent=`対象：月曜〜日曜の ${fullWeeks.length}週（月またぎを含む・未登録日は未確認）`;
+    let html='<thead><tr><th>職員</th><th>日勤</th><th>平常</th><th>夜勤</th><th>出勤<br>3勤務区分</th><th>希望休<br>勤務表上の休</th><th>通常休</th><th>月間勤務時間</th><th>週1日<br>（月またぎ含む）</th><th>月4日以上<br>（参考目安）</th></tr></thead><tbody>';
     staff.forEach((s,i)=>{
       const row=state.grid[i];const dayCount=row.filter(x=>x==='D').length;const regularCount=row.filter(x=>x==='R').length;const nightCount=row.filter(x=>x==='N').length;
       const requestedRest=row.filter((x,d)=>x==='O'&&s.offs.includes(d+1)).length;const ordinaryRest=row.filter((x,d)=>x==='O'&&!s.offs.includes(d+1)).length;
       const total=dayCount*dayHours+regularCount*regularHours+nightCount*nightHours;
-      const restByWeek=fullWeeks.map(w=>{let rests=0;for(let d=new Date(w.start);d<=w.end;d.setDate(d.getDate()+1)){const day=d.getDate()-1;if(row[day]==='O')rests++;}return rests;});
-      const missing=restByWeek.filter(n=>n===0).length;const weeklyStatus=!fullWeeks.length?'対象週なし':missing?`${fullWeeks.length-missing}/${fullWeeks.length}週で確認`:`目安OK（${fullWeeks.length}/${fullWeeks.length}週）`;
-      const weeklyClass=!fullWeeks.length?'check':missing?'fail':'pass';
-      const fullRestDays=row.filter(x=>x==='O').length;const monthlyStatus=fullRestDays>=4?'目安OK':'4日未満';const monthlyClass=fullRestDays>=4?'pass':'fail';
-      html+=`<tr><td class="staff-cell"><button type="button" class="personal-name" data-personal-staff="${i}" aria-haspopup="dialog" aria-label="${s.name}さんの個人勤怠表を開く">${s.name}</button><br><span class="week-detail">${s.role}</span></td><td>${dayCount}回</td><td>${regularCount}回</td><td>${nightCount}回</td><td>${dayCount+regularCount+nightCount}日</td><td class="request-count">${requestedRest}日</td><td>${ordinaryRest}日</td><td><strong>${total.toLocaleString('ja-JP')}</strong> 時間</td><td><span class="status-pill ${weeklyClass}">${weeklyStatus}</span>${restByWeek.length?`<br><span class="week-detail">${restByWeek.map((n,k)=>`${k+1}週:${n}日`).join(' / ')}</span>`:''}</td><td><span class="status-pill ${monthlyClass}">${monthlyStatus}</span><br><span class="week-detail">終日休み ${fullRestDays}日</span></td></tr>`;
+      const restByWeek=fullWeeks.map(w=>weekRest(i,w));
+      const missing=restByWeek.filter(n=>n===0).length,unknown=restByWeek.filter(n=>n===null).length;
+      const weeklyStatus=`${restByWeek.filter(n=>n>0).length}/${fullWeeks.length}週で確認${missing?`・休日なし ${missing}週`:''}${unknown?`・未確認 ${unknown}週`:''}`;
+      const weeklyClass=missing?'fail':unknown?'check':'pass';
+      const fullRestDays=row.filter((x,d)=>isFullRest(i,new Date(state.year,state.month-1,d+1))===true).length;
+      const monthlyStatus=fullRestDays>=4?'目安OK':'4日未満';const monthlyClass=fullRestDays>=4?'pass':'fail';
+      html+=`<tr><td class="staff-cell"><button type="button" class="personal-name" data-personal-staff="${i}" aria-haspopup="dialog" aria-label="${s.name}さんの個人勤怠表を開く">${s.name}</button><br><span class="week-detail">${s.role}</span></td><td>${dayCount}回</td><td>${regularCount}回</td><td>${nightCount}回</td><td>${dayCount+regularCount+nightCount}日</td><td class="request-count">${requestedRest}日</td><td>${ordinaryRest}日</td><td><strong>${total.toLocaleString('ja-JP')}</strong> 時間</td><td><span class="status-pill ${weeklyClass}">${weeklyStatus}</span>${restByWeek.length?`<br><span class="week-detail">${restByWeek.map((n,k)=>`${fullWeeks[k].start.getMonth()+1}/${fullWeeks[k].start.getDate()}〜${fullWeeks[k].end.getMonth()+1}/${fullWeeks[k].end.getDate()}:${n===null?'未確認':n+'日'}`).join(' / ')}</span>`:''}</td><td><span class="status-pill ${monthlyClass}">${monthlyStatus}</span><br><span class="week-detail">終日休み ${fullRestDays}日</span></td></tr>`;
     });
     $('workCheckTable').innerHTML=html+'</tbody>';
   }
@@ -606,22 +653,34 @@
     }
     return data;
   }
-  function applyImported(data){validatePayload(data);localStorage.setItem(STORAGE_KEY,JSON.stringify({current:data.current,months:data.months}));location.reload();}
+  function applyImported(data){validatePayload(data);localStorage.setItem(STORAGE_KEY,JSON.stringify({current:data.current,months:data.months}));hasSavedState=true;location.reload();}
   function downloadData(){const blob=new Blob([JSON.stringify(exportPayload(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='勤務表バックアップ.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  let cloudSession=null;
-  function cloudConfig(){const url=$('cloudUrl').value.trim().replace(/\/$/,''),key=$('cloudKey').value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||!key||key.startsWith('sb_secret_'))throw Error('正しいプロジェクト URL と公開可能キーを入力してください');if(key.split('.').length===3){try{const payload=JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(payload.role==='service_role')throw Error('管理者キーは使用できません');}catch(e){if(e.message==='管理者キーは使用できません')throw e;}}return {url,key};}
-  async function cloudRequest(path,options={}){const {url,key}=cloudConfig(),headers={'apikey':key,'Content-Type':'application/json',...(cloudSession?{'Authorization':`Bearer ${cloudSession.access_token}`}:{}) ,...(options.headers||{})};const r=await fetch(url+path,{...options,headers});if(!r.ok){const error=await r.text();throw Error(`接続できませんでした (${r.status}) ${error.slice(0,160)}`);}const body=await r.text();return body?JSON.parse(body):null;}
-  function cloudButtons(){for(const id of ['cloudSave','cloudLoad','cloudLogout'])$(id).disabled=!cloudSession;$('cloudLogin').disabled=!!cloudSession;}
-  async function cloudAction(action){try{
-    if(action==='login'){cloudSession=await cloudRequest('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('cloudEmail').value,password:$('cloudPassword').value})});$('cloudPassword').value='';localStorage.setItem('no8CloudConfig',JSON.stringify(cloudConfig()));cloudButtons();$('cloudStatus').textContent='ログインしました。';}
-    if(action==='save'){const data=exportPayload();await cloudRequest('/rest/v1/no8_user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:cloudSession.user.id,payload:data})});$('cloudStatus').textContent='クラウドに保存しました。';}
-    if(action==='load'){const rows=await cloudRequest('/rest/v1/no8_user_data?select=payload&user_id=eq.'+encodeURIComponent(cloudSession.user.id));if(!rows.length)throw Error('保存されたデータがありません');validatePayload(rows[0].payload);if(confirm('クラウドのデータでこのブラウザの勤務表を置き換えますか？'))applyImported(rows[0].payload);}
-  }catch(e){$('cloudStatus').textContent=e.message;}}
+  // 公開可能キーを設定すると、一般利用者の入力なしで接続できます。
+  const DEFAULT_CLOUD_CONFIG={url:'https://hovfcsbrsptvxnouicts.supabase.co',key:'sb_publishable_BAsdrQKBgih9QvLHDDwDEw_czFLJIZR'};
+  const CLOUD_CONFIG_KEY='no8CloudConfig',CLOUD_SESSION_KEY='no8AnonymousSession';
+  function readCloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||'null')||DEFAULT_CLOUD_CONFIG;}catch(e){return DEFAULT_CLOUD_CONFIG;}}
+  function hasCloudConfig(){const c=readCloudConfig();return !!(c.url&&c.key);}
+  function validateCloudConfig(url,key){url=url.trim().replace(/\/$/,'');key=key.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||!key||key.startsWith('sb_secret_'))throw Error('プロジェクト URL と公開可能キーを入力してください');if(key.split('.').length===3){try{const payload=JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(payload.role==='service_role')throw Error('管理者キーは使用できません');}catch(e){if(e.message==='管理者キーは使用できません')throw e;}}return {url,key};}
+  async function cloudRequest(path,options={},session=null){const {url,key}=validateCloudConfig(readCloudConfig().url,readCloudConfig().key);const headers={'apikey':key,'Content-Type':'application/json',Authorization:`Bearer ${session?session.access_token:key}` ,...(options.headers||{})};const r=await fetch(url+path,{...options,headers});if(!r.ok){const error=await r.text();throw Error(`接続できませんでした (${r.status}) ${error.slice(0,160)}`);}const body=await r.text();return body?JSON.parse(body):null;}
+  async function anonymousSession(){
+    const config=readCloudConfig();let session;try{session=JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)||'null');}catch(e){throw Error('保存済みの接続情報を読み込めません');}
+    if(session&&session.project!==config.url)throw Error('別のプロジェクトの接続情報があります。ブラウザのデータを書き出してから設定を確認してください');
+    if(session&&session.expires_at>Date.now()/1000+60)return session;
+    if(session){const refreshed=await cloudRequest('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});session={...refreshed,project:config.url,expires_at:Math.floor(Date.now()/1000)+(refreshed.expires_in||3600)};}
+    else {const created=await cloudRequest('/auth/v1/signup',{method:'POST',body:'{}'});session={...created,project:config.url,expires_at:Math.floor(Date.now()/1000)+(created.expires_in||3600)};}
+    if(!session?.access_token||!session?.refresh_token||!session.user?.id)throw Error('クラウド認証に失敗しました');localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify(session));return session;
+  }
+  async function cloudSaveData(payload){const data=payload||JSON.parse(JSON.stringify(exportPayload())),session=await anonymousSession();await cloudRequest('/rest/v1/no8_user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,payload:data})},session);}
+  async function cloudLoadData(){const session=await anonymousSession(),rows=await cloudRequest('/rest/v1/no8_user_data?select=payload&user_id=eq.'+encodeURIComponent(session.user.id),{},session);if(!rows.length)throw Error('このブラウザの保存データがありません');validatePayload(rows[0].payload);if(confirmReplace('クラウドのデータで全月の勤務表・条件を置き換えますか？'))applyImported(rows[0].payload);}
+  async function cloudAction(action){try{if(action==='configure'){const c=validateCloudConfig($('cloudUrl').value,$('cloudKey').value);const old=readCloudConfig();if(old.url&&old.url!==c.url&&localStorage.getItem(CLOUD_SESSION_KEY))throw Error('接続先の変更前にブラウザデータを書き出してください');localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(c));await anonymousSession();$('cloudStatus').textContent='接続できました。';}if(action==='save'){await saveCurrentState();$('cloudStatus').textContent=$('saveStatus').textContent;}if(action==='load')await cloudLoadData();}catch(e){$('cloudStatus').textContent=e.message;}}
   function bind(){
+    window.addEventListener('beforeunload',e=>{if(!hasSavedState){e.preventDefault();e.returnValue='';}});
+    $('reviewRemaining').addEventListener('click',()=>{state.warningFilter='all';renderWarnings(getWarnings());$('alertFilters').scrollIntoView({behavior:'smooth',block:'center'});});
     const setView=view=>{state.view=view;render();window.scrollTo({top:0,behavior:'smooth'});};
     $('scheduleTab').addEventListener('click',()=>setView('schedule'));$('requestTab').addEventListener('click',()=>setView('requests'));$('reviewRequestSchedule').addEventListener('click',()=>setView('schedule'));$('workCheckTab').addEventListener('click',()=>setView('workCheck'));
-    $('exportData').addEventListener('click',downloadData);$('importData').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw Error('ファイルが大きすぎます');const data=validatePayload(JSON.parse(await f.text()));if(confirm('現在の全月データを読み込んだ内容で置き換えますか？'))applyImported(data);}catch(err){alert('読み込めませんでした：'+err.message);}finally{e.target.value='';}});
-    $('cloudOpen').addEventListener('click',()=>{try{const c=JSON.parse(localStorage.getItem('no8CloudConfig')||'{}');$('cloudUrl').value=c.url||'';$('cloudKey').value=c.key||'';}catch(e){}$('cloudDialog').showModal();});$('cloudClose').addEventListener('click',()=>$('cloudDialog').close());$('cloudLogin').addEventListener('click',()=>cloudAction('login'));$('cloudSave').addEventListener('click',()=>cloudAction('save'));$('cloudLoad').addEventListener('click',()=>cloudAction('load'));$('cloudLogout').addEventListener('click',()=>{cloudSession=null;cloudButtons();$('cloudStatus').textContent='ログアウトしました。';});
+    $('exportData').addEventListener('click',downloadData);$('importData').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw Error('ファイルが大きすぎます');const data=validatePayload(JSON.parse(await f.text()));if(confirmReplace('現在の全月データを読み込んだ内容で置き換えますか？'))applyImported(data);}catch(err){alert('読み込めませんでした：'+err.message);}finally{e.target.value='';}});
+    $('cloudOpen').addEventListener('click',()=>{const c=readCloudConfig();$('cloudUrl').value=c.url||'';$('cloudKey').value=c.key||'';$('cloudDialog').showModal();});$('cloudClose').addEventListener('click',()=>$('cloudDialog').close());$('cloudConfigure').addEventListener('click',()=>cloudAction('configure'));$('cloudSave').addEventListener('click',()=>cloudAction('save'));$('cloudLoad').addEventListener('click',()=>cloudAction('load'));
+
     $('saveBtn').addEventListener('click',saveCurrentState);$('undoBtn').addEventListener('click',undoRoster);
     $('personalCsvBtn').addEventListener('click',exportPersonalCsv);
     $('personalPrintBtn').addEventListener('click',()=>{renderPersonal();window.print();});
@@ -644,7 +703,7 @@
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('shiftMenu').classList.contains('hidden')){const button=state.activeCell?.button;closeShiftMenu();button?.focus();}});
     const changePeriod=()=>{closeShiftMenu();state.warningFocus=null;state.suggestionWarning=null;state.warningFilter='all';state.warningLimit=8;cacheCurrentMonth();state.year=Number($('yearSelect').value);state.month=Number($('monthSelect').value);state.days=new Date(state.year,state.month,0).getDate();const snapshot=monthCache[monthKey()];if(snapshot)restoreSnapshot(snapshot);else{staff.splice(0,staff.length,...staffBaseline.map(x=>({...x,offs:[...x.offs]})));applyControls(sampleControls);state.grid=initialGrid();priorAtCreation=priorSignature();state.generated=false;state.dirty=false;}markUnsaved();render();};
     $('yearSelect').addEventListener('change',changePeriod);$('monthSelect').addEventListener('change',changePeriod);
-    ['dayNeed','nightNeed','streakLimit','balanceHours','balanceNights','respectOffs','avoidAfterNight','leaderRequired','nightLeaderRequired'].forEach(id=>$(id).addEventListener('change',()=>{state.dirty=true;markUnsaved();render();}));
+    ['dayNeed','nightNeed','streakLimit','balanceHours','balanceNights','respectOffs','avoidAfterNight','leaderRequired','nightLeaderRequired'].forEach(id=>$(id).addEventListener(['dayNeed','nightNeed'].includes(id)?'input':'change',()=>{state.dirty=true;markUnsaved();render();}));
     $('generateBtn').addEventListener('click',generate);
     $('resetBtn').addEventListener('click',()=>{$('resetDialog').showModal();$('cancelResetBtn').focus();});
     $('cancelResetBtn').addEventListener('click',()=>{$('resetDialog').close();$('resetBtn').focus();});
