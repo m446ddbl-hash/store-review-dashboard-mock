@@ -45,6 +45,7 @@
     }
 
     .schedule tfoot td{height:46px;font-size:12px;border-top:1px solid #c3d3db}.schedule tfoot tr:nth-child(1) td{bottom:92px}.schedule tfoot tr:nth-child(2) td{bottom:46px}.schedule tfoot tr:nth-child(3) td{bottom:0}.schedule tfoot .staffing-D td{background:#e3f2ef;color:#145d53}.schedule tfoot .staffing-N td{background:#ece6f8;color:#483078}.schedule tfoot .staffing-R td{background:#e7eff8;color:#285578}.staffing-row-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750;line-height:1.2}.staffing-row-title .badge-shift{width:19px;height:18px;font-size:10px}.staffing-row-note{display:block;margin-top:3px;font-size:9px;line-height:1.1;color:#566f7c;font-weight:500}.staffing-values{display:inline-flex;align-items:baseline;justify-content:center;gap:2px;white-space:nowrap;font-variant-numeric:tabular-nums}.staffing-values b{font-size:14px;font-weight:800}.staffing-values .need-count{font-size:12px;font-weight:650;color:inherit}.staffing-divider{font-size:11px;opacity:.65;font-weight:400}.staffing-unit{font-size:10px;font-weight:500;opacity:.8}.schedule tfoot .staffing-shortage{background:#ffe1cf!important;color:#973c14!important;box-shadow:inset 0 0 0 2px #db8850}.staffing-shortage .need-count{color:inherit}
+    .previous-day{background:#edf1f4!important;color:#586e79!important}.previous-day .badge-shift{opacity:.75}.previous-divider{border-right:2px solid #9db0bb!important}.data-tools{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.sync-fields label{display:block;font-size:12px;margin:12px 0 4px}.sync-fields input{width:100%;padding:9px;border:1px solid #b5cbd4;border-radius:6px}.sync-status{font-size:12px;line-height:1.6;margin-top:12px;color:#395d69}
   </style>
 </head>
 <body>
@@ -56,7 +57,7 @@
     <div class="month-picker" aria-label="表示する年月">
       <label for="yearSelect">年</label><select id="yearSelect" aria-label="年"><option value="2026">2026年</option></select>
       <label for="monthSelect">月</label><select id="monthSelect" aria-label="月"><option value="8">8月（作成済み）</option><option value="9">9月（作成済み）</option><option value="10" selected>10月（作成中）</option></select>
-      <div class="month-meta" id="monthMeta">サンプルチーム　｜　職員 12名</div>
+      <div class="data-tools"><button class="btn" type="button" id="exportData">データを書き出す</button><button class="btn" type="button" id="importData">データを読み込む</button><input id="importFile" type="file" accept="application/json,.json" hidden><button class="btn" type="button" id="cloudOpen">Supabase 保存・読込</button></div><div class="month-meta" id="monthMeta">サンプルチーム　｜　職員 12名</div>
     </div>
     <div class="view-tabs" role="tablist" aria-label="表示する画面"><button type="button" class="view-tab active" id="scheduleTab" role="tab" aria-selected="true" aria-controls="scheduleView">月間勤務表</button><button type="button" class="view-tab" id="workCheckTab" role="tab" aria-selected="false" aria-controls="workCheckView">勤務時間・休日チェック</button><button type="button" class="view-tab" id="requestTab" role="tab" aria-selected="false" aria-controls="requestView">人員管理</button></div>
     <div id="scheduleView" role="tabpanel" aria-labelledby="scheduleTab">
@@ -147,6 +148,7 @@
     <div class="personal-table-scroll" id="personalTableView"><table class="personal-table" id="personalTable" aria-label="個人の月間勤怠予定"></table></div>
     <div class="personal-calendar-view hidden" id="personalCalendarView"><div class="request-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div class="personal-calendar" id="personalCalendar"></div></div>
   </dialog>
+  <dialog class="reset-dialog" id="cloudDialog"><h2>Supabase 保存・読込</h2><p>設定済みの Supabase にログインして、このブラウザの全月データを保存・読込できます。接続設定とログインは端末ごとです。</p><div class="sync-fields"><label for="cloudUrl">プロジェクト URL</label><input id="cloudUrl" type="url" placeholder="https://...supabase.co"><label for="cloudKey">公開可能キー（publishable / anon）</label><input id="cloudKey" type="text" autocomplete="off"><label for="cloudEmail">メールアドレス</label><input id="cloudEmail" type="email" autocomplete="username"><label for="cloudPassword">パスワード</label><input id="cloudPassword" type="password" autocomplete="current-password"></div><div class="data-tools"><button class="btn" id="cloudLogin" type="button">ログイン</button><button class="btn" id="cloudSave" type="button" disabled>クラウドに保存</button><button class="btn" id="cloudLoad" type="button" disabled>クラウドから読込</button><button class="btn" id="cloudLogout" type="button" disabled>ログアウト</button></div><div class="sync-status" id="cloudStatus" aria-live="polite">未接続。Supabase の設定が必要です。</div><div class="dialog-actions"><button class="btn" type="button" id="cloudClose">閉じる</button></div></dialog>
   <dialog class="reset-dialog" id="resetDialog" aria-labelledby="resetDialogTitle"><h2 id="resetDialogTitle">サンプルを初期状態に戻しますか？</h2><p>このブラウザに保存した3か月分の勤務表と条件を初期状態に戻します。調整した内容は失われます。</p><div class="dialog-actions"><button class="btn" id="cancelResetBtn" type="button" autofocus>キャンセル</button><button class="btn destructive" id="confirmResetBtn" type="button">初期状態に戻す</button></div></dialog>
   <div class="shift-menu hidden" id="shiftMenu" role="menu" aria-label="勤務区分を選択"><button type="button" role="menuitemradio" data-shift="D" aria-checked="false"><i class="badge-shift shift-D">日</i>日勤</button><button type="button" role="menuitemradio" data-shift="R" aria-checked="false"><i class="badge-shift shift-R">平</i>平常勤務（9:00–18:00）</button><button type="button" role="menuitemradio" data-shift="N" aria-checked="false"><i class="badge-shift shift-N">夜</i>夜勤</button><button type="button" role="menuitemradio" data-shift="A" aria-checked="false"><i class="badge-shift shift-A">明</i>明け</button><button type="button" role="menuitemradio" data-shift="O" aria-checked="false"><i class="badge-shift shift-O">休</i>休み</button></div>
 </div>
@@ -192,19 +194,21 @@
   function initialGrid(){return buildSchedule();}
   function seedSampleMonths(){
     const original={year:state.year,month:state.month,days:state.days};
-    for(const m of [8,9]){state.year=2026;state.month=m;state.days=new Date(2026,m,0).getDate();state.grid=buildSchedule();state.generated=true;state.dirty=false;cacheCurrentMonth();}
+    for(const m of [8,9]){state.year=2026;state.month=m;state.days=new Date(2026,m,0).getDate();state.grid=buildSchedule();priorAtCreation=priorSignature();state.generated=true;state.dirty=false;cacheCurrentMonth();}
     Object.assign(state,original);
   }
   function getTwoShiftHours(){return Math.max(0,12.5-Number($('shiftBreak').value));}
   function monthKey(){return `${state.year}-${String(state.month).padStart(2,'0')}`;}
   function controlSnapshot(){return {dayNeed:$('dayNeed').value,nightNeed:$('nightNeed').value,streakLimit:$('streakLimit').value,balanceHours:$('balanceHours').checked,balanceNights:$('balanceNights').checked,respectOffs:$('respectOffs').checked,avoidAfterNight:$('avoidAfterNight').checked,leaderRequired:$('leaderRequired').checked,nightLeaderRequired:$('nightLeaderRequired').checked,shiftBreak:$('shiftBreak').value,regularHours:$('regularHours').value};}
-  function currentSnapshot(){return {generatorVersion:8,grid:state.grid.map(row=>[...row]),generated:state.generated,dirty:state.dirty,requestDrafts:JSON.parse(JSON.stringify(requestDraftsForMonth())),staff:copyStaff(),controls:controlSnapshot()};}
+  function priorSignature(){const prev=previousSnapshot();return prev?JSON.stringify((prev.staff||staffBaseline).map((x,i)=>[x.id,...(prev.grid[i]||[]).slice(-5)])):null;}
+  let priorAtCreation=null;
+  function currentSnapshot(){return {priorAtCreation,generatorVersion:8,grid:state.grid.map(row=>[...row]),generated:state.generated,dirty:state.dirty,requestDrafts:JSON.parse(JSON.stringify(requestDraftsForMonth())),staff:copyStaff(),controls:controlSnapshot()};}
   function cacheCurrentMonth(){monthCache[monthKey()]=currentSnapshot();}
   function showSaveStatus(text,unsaved=false){$('saveStatus').textContent=text;$('saveStatus').classList.toggle('unsaved',unsaved);updateOperationState();}
   function markUnsaved(){hasSavedState=false;showSaveStatus('未保存の変更あり',true);}
   function applyControls(c){const values={...sampleControls,...c};values.streakLimit=clamp(Number(values.streakLimit)||4,1,4);['dayNeed','nightNeed','streakLimit','shiftBreak','regularHours'].forEach(id=>{$(id).value=values[id];});['balanceHours','balanceNights','respectOffs','avoidAfterNight','leaderRequired','nightLeaderRequired'].forEach(id=>{$(id).checked=!!values[id];});}
-  function restoreSnapshot(snapshot){state.requestDrafts[monthKey()]=JSON.parse(JSON.stringify(snapshot.requestDrafts||{}));staff.splice(0,staff.length,...(snapshot.staff||staffBaseline).map(x=>({...x,offs:[...(x.offs||[])]})));applyControls(snapshot.controls);state.days=new Date(state.year,state.month,0).getDate();state.grid=snapshot.grid?Array.from({length:staff.length},(_,i)=>Array.from({length:state.days},(_,d)=>snapshot.grid?.[i]?.[d]||'O')):initialGrid();state.generated=!!snapshot.generated;state.dirty=!!snapshot.dirty;}
-  function loadSavedState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved?.months){monthCache=saved.months;const key=saved.current||'2026-10';let migrated=false;for(const snapshot of Object.values(monthCache)){if((snapshot.generatorVersion||0)<8){if(snapshot.staff)snapshot.staff=snapshot.staff.map(s=>{const {cap,...record}=s;return (snapshot.generatorVersion||0)<7?{...record,leader:staffBaseline.find(b=>b.id===s.id)?.leader??s.leader}:record;});snapshot.grid=null;snapshot.generated=false;snapshot.dirty=false;snapshot.generatorVersion=8;migrated=true;}}const [year,month]=key.split('-').map(Number);if(year&&month){state.year=year;state.month=month;}const snapshot=monthCache[key];if(snapshot)restoreSnapshot(snapshot);else{applyControls(sampleControls);state.days=new Date(state.year,state.month,0).getDate();state.grid=initialGrid();}if(migrated){hasSavedState=false;showSaveStatus('勤務条件に合わせてサンプルを更新しました。確認後に保存してください',true);}else if(snapshot){hasSavedState=true;showSaveStatus('保存データを復元');}else showSaveStatus('未保存',true);}else{seedSampleMonths();state.grid=initialGrid();state.generated=false;showSaveStatus('未保存',true);}}catch(e){state.grid=initialGrid();showSaveStatus('保存データを読み込めません',true);} $('yearSelect').value=String(state.year);$('monthSelect').value=String(state.month);}
+  function restoreSnapshot(snapshot){state.requestDrafts[monthKey()]=JSON.parse(JSON.stringify(snapshot.requestDrafts||{}));staff.splice(0,staff.length,...(snapshot.staff||staffBaseline).map(x=>({...x,offs:[...(x.offs||[])]})));applyControls(snapshot.controls);state.days=new Date(state.year,state.month,0).getDate();state.grid=snapshot.grid?Array.from({length:staff.length},(_,i)=>Array.from({length:state.days},(_,d)=>snapshot.grid?.[i]?.[d]||'O')):initialGrid();state.generated=!!snapshot.generated;state.dirty=!!snapshot.dirty;priorAtCreation=Object.hasOwn(snapshot,'priorAtCreation')?snapshot.priorAtCreation:priorSignature();}
+  function loadSavedState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved?.months){monthCache=saved.months;const key=saved.current||'2026-10';let migrated=false;for(const snapshot of Object.values(monthCache)){if((snapshot.generatorVersion||0)<8){if(snapshot.staff)snapshot.staff=snapshot.staff.map(s=>{const {cap,...record}=s;return (snapshot.generatorVersion||0)<7?{...record,leader:staffBaseline.find(b=>b.id===s.id)?.leader??s.leader}:record;});snapshot.grid=null;snapshot.generated=false;snapshot.dirty=false;snapshot.generatorVersion=8;migrated=true;}}const [year,month]=key.split('-').map(Number);if(year&&month){state.year=year;state.month=month;}const snapshot=monthCache[key];if(snapshot)restoreSnapshot(snapshot);else{applyControls(sampleControls);state.days=new Date(state.year,state.month,0).getDate();state.grid=initialGrid();}if(migrated){hasSavedState=false;showSaveStatus('勤務条件に合わせてサンプルを更新しました。確認後に保存してください',true);}else if(snapshot){hasSavedState=true;showSaveStatus('保存データを復元');}else showSaveStatus('未保存',true);}else{seedSampleMonths();state.grid=initialGrid();priorAtCreation=priorSignature();state.generated=false;showSaveStatus('未保存',true);}}catch(e){state.grid=initialGrid();showSaveStatus('保存データを読み込めません',true);} $('yearSelect').value=String(state.year);$('monthSelect').value=String(state.month);}
   function saveCurrentState(){try{cacheCurrentMonth();localStorage.setItem(STORAGE_KEY,JSON.stringify({current:monthKey(),months:monthCache}));hasSavedState=true;showSaveStatus('保存済み');}catch(e){hasSavedState=false;showSaveStatus('保存できませんでした',true);}}
   function conditionSignature(){return JSON.stringify({staff:copyStaff(),controls:controlSnapshot()});}
   function undoHistory(){return state.undoByMonth[monthKey()]??=[];}
@@ -217,7 +221,7 @@
   function generate(){
     if(pendingRequestCount())return;
     const next=buildSchedule();if(state.dirty||!state.generated||JSON.stringify(next)!==JSON.stringify(state.grid))rememberRoster('勤務表案の作成');
-    state.view='schedule';state.warningFocus=null;state.grid=next;state.generated=true;state.dirty=false;markUnsaved();render();
+    state.view='schedule';state.warningFocus=null;priorAtCreation=priorSignature();state.grid=next;state.generated=true;state.dirty=false;markUnsaved();render();
   }
   function buildSchedule(){
     const n=staff.length;const g=Array.from({length:n},()=>Array(state.days).fill('O'));
@@ -364,6 +368,21 @@
         break;
       }
     }
+    for(const w of warns.filter(x=>x.type==='役割不足')){
+      const d=w.day-1,shift=w.title.includes('夜勤')?'N':'D';
+      for(let i=0;i<staff.length;i++)if(staff[i].leader&&canSuggestShift(i,d,shift)){
+        result.push({warning:w,title:`${w.day}日の${shiftNames[shift]}に${staff[i].name}さんを追加`,detail:`休み → ${shiftNames[shift]}${shift==='N'?`、${d+2}日を明けに変更`:''}。配置人数は1名増えます。`,i,d,shift,tag:'リーダー不足を調整'});break;
+      }
+    }
+    for(const w of warns.filter(x=>x.type==='夜勤可否')){
+      const d=w.day-1,i=w.staffIndex,row=state.grid[i];
+      if(d+1>=state.days||row[d+1]!=='A'||(d?row[d-1]:previousRow(i).at(-1))==='N')continue;
+      for(let j=0;j<staff.length;j++){
+        if(j===i||!canSuggestShift(j,d,'N'))continue;
+        if($('nightLeaderRequired').checked&&staff[i].leader&&!staff[j].leader&&!staff.some((x,k)=>k!==i&&x.leader&&state.grid[k][d]==='N'))continue;
+        result.push({warning:w,title:`${w.day}日の夜勤を${staff[j].name}さんへ交代`,detail:`${staff[i].name}さんの夜勤・翌日の明けを休みにし、${staff[j].name}さんを夜勤・翌日明けにします。`,i,j,d,shift:'N',nightSwap:true,tag:'夜勤可否を調整'});break;
+      }
+    }
     return result;
   }
   function render(){
@@ -372,6 +391,7 @@
     $('pageSubtitle').textContent=historical?'作成済みのサンプル勤務表を参照しています':'条件を見ながら勤務表案を調整できます';
     $('yearSelect').value=String(state.year);$('monthSelect').value=String(state.month);
     $('pageSubtitle').textContent += previousSnapshot()?'｜前月の勤務表を参照中':'｜前月の勤務表は未登録（月またぎは未確認）';
+    if(priorAtCreation!==priorSignature())$('pageSubtitle').textContent+='｜前月末の勤務が変更されています。月初を確認してください';
     $('monthMeta').innerHTML=`<span class="month-state ${historical?'':'draft'}">${historical?'作成済み':'作成中'}</span>サンプルチーム　｜　職員 ${staff.length}名・リーダー対応 ${staff.filter(s=>s.leader).length}名`;
     $('conditionPanel').classList.toggle('hidden',historical);$('staffPanel').classList.toggle('hidden',historical);
     $('generateBtn').classList.toggle('hidden',historical);$('resetBtn').classList.toggle('hidden',historical);
@@ -400,6 +420,8 @@
     const focused=state.warningFocus,today=new Date();
     const dayClass=d=>{const w=weekday(d);return `${w==='月'?'week-start':''} ${w==='土'?'sat':w==='日'?'sun':''} ${focused?.day===d?'focus-column':''}`;};
     let html='<thead><tr><th>職員／日付</th>';
+    const prior=previousSnapshot(),previousDate=new Date(state.year,state.month-1,0),previousDays=prior?Math.min(4,previousDate.getDate()):0;
+    for(let d=previousDays-1;d>=0;d--)html+=`<th class="previous-day ${d===0?'previous-divider':''}">${previousDate.getDate()-d}<span class="day-label">前月</span></th>`;
     for(let d=1;d<=state.days;d++){
       const isToday=today.getFullYear()===state.year&&today.getMonth()+1===state.month&&today.getDate()===d;
       html+=`<th data-day="${d}" class="${dayClass(d)} ${isToday?'today':''}">${d}<span class="day-label">${weekday(d)}</span></th>`;
@@ -407,6 +429,7 @@
     html+='</tr></thead><tbody>';
     staff.forEach((s,i)=>{
       html+=`<tr><td class="${focused?.staffIndex===i?'focus-name':''}"><span class="staff-name">${s.name}</span><span class="staff-role">${s.role}</span></td>`;
+      const prevRow=previousRow(i);for(let d=previousDays-1;d>=0;d--){const v=prevRow.at(-1-d);html+=`<td class="previous-day ${d===0?'previous-divider':''}" aria-label="前月 ${previousDate.getDate()-d}日 ${v?shiftNames[v]:'未登録'}">${v?`<span class="badge-shift shift-${v}">${labels[v]}</span>`:'—'}</td>`;}
       for(let d=0;d<state.days;d++){
         const v=state.grid[i][d]||'O',requested=s.offs.includes(d+1),requestedRest=requested&&v==='O';
         const missed=requested&&['D','R','N'].includes(v),selected=focused?.day===d+1;
@@ -418,6 +441,7 @@
     html+='</tbody><tfoot>';
     for(const [shift,name] of [['D','日勤'],['N','夜勤'],['R','平常']]){
       html+=`<tr class="staffing-row staffing-${shift}"><td><span class="staffing-row-title"><i class="badge-shift shift-${shift}">${labels[shift]}</i>${name}</span><span class="staffing-row-note">${shift==='R'?'配置人数（手動）':'配置人数 ／ 必要人数'}</span></td>`;
+      for(let d=previousDays-1;d>=0;d--)html+=`<td class="previous-day ${d===0?'previous-divider':''}">—</td>`;
       for(let d=0;d<state.days;d++){
         const actual=state.grid.filter(r=>r[d]===shift).length,need=shift==='D'?Number($('dayNeed').value)||0:shift==='N'?Number($('nightNeed').value)||0:null;
         html+=`<td class="${dayClass(d+1)} ${need!==null&&actual<need?'staffing-shortage':''}" aria-label="${d+1}日 ${name} ${actual}名配置${need===null?'・必要人数の対象外':`・必要${need}名`}">${need===null?`<span class="staffing-values"><b>${actual}</b><span class="staffing-unit">名</span></span>`:`<span class="staffing-values"><b>${actual}</b><span class="staffing-divider">/</span><span class="need-count">${need}</span></span>`}</td>`;
@@ -503,7 +527,7 @@
     $('alertTag').textContent=`${warns.length}件`;$('alertTag').className='tag '+(warns.length?'warn':'good');
     $('alertFilters').innerHTML=warningGroups.map(g=>`<button type="button" class="filter-btn" data-filter="${g.key}" aria-pressed="${state.warningFilter===g.key}">${g.label}<span>${warningsForGroup(warns,g.key).length}</span></button>`).join('');
     const filtered=warningsForGroup(warns,state.warningFilter),list=filtered.slice(0,state.warningLimit);
-    $('alertList').innerHTML=list.length?list.map(w=>`<div class="alert-row"><div class="alert-icon ${w.severity==='red'?'red':''}">${w.severity==='red'?'!':'△'}</div><div><div class="alert-main"><span class="alert-date">${state.month}月${w.day}日</span>${w.title}</div><div class="alert-sub">${w.desc.replace(/^[^｜]*｜/,'')}</div></div><div class="alert-actions"><span class="tag ${w.severity==='red'?'warn':''}">${w.type}</span><button type="button" class="btn tiny" data-warning-index="${warns.indexOf(w)}">勤務表で確認 →</button>${['人員不足','希望休','連勤'].includes(w.type)?`<button type="button" class="btn tiny" data-warning-suggest="${warns.indexOf(w)}">修正候補を見る</button>`:''}</div></div>`).join(''):`<div class="empty">${warns.length?'この種類の警告はありません':'✓　確認が必要な警告はありません'}</div>`;
+    $('alertList').innerHTML=list.length?list.map(w=>`<div class="alert-row"><div class="alert-icon ${w.severity==='red'?'red':''}">${w.severity==='red'?'!':'△'}</div><div><div class="alert-main"><span class="alert-date">${state.month}月${w.day}日</span>${w.title}</div><div class="alert-sub">${w.desc.replace(/^[^｜]*｜/,'')}</div></div><div class="alert-actions"><span class="tag ${w.severity==='red'?'warn':''}">${w.type}</span><button type="button" class="btn tiny" data-warning-index="${warns.indexOf(w)}">勤務表で確認 →</button>${['人員不足','希望休','連勤','役割不足','夜勤可否'].includes(w.type)?`<button type="button" class="btn tiny" data-warning-suggest="${warns.indexOf(w)}">修正候補を見る</button>`:''}</div></div>`).join(''):`<div class="empty">${warns.length?'この種類の警告はありません':'✓　確認が必要な警告はありません'}</div>`;
     $('moreAlerts').classList.toggle('hidden',filtered.length<=state.warningLimit);
     $('moreAlerts').textContent=`さらに表示（残り${Math.max(0,filtered.length-state.warningLimit)}件）`;
     $('alertList').querySelectorAll('[data-warning-suggest]').forEach(b=>b.addEventListener('click',()=>{state.suggestionWarning=warns[Number(b.dataset.warningSuggest)];renderSuggestions(getSuggestions(warns));$('suggestList').scrollIntoView({behavior:'smooth',block:'center'});}));
@@ -517,7 +541,7 @@
     $('suggestList').querySelectorAll('[data-suggest]').forEach(b=>b.addEventListener('click',()=>{
       const x=items[Number(b.dataset.suggest)];if(!canSuggestShift(x.j??x.i,x.d,x.shift)||(x.j!==undefined&&state.grid[x.i][x.d]!==x.shift)){render();return;}
       if(!confirm(`${x.title}\n\n${x.detail}\n\n勤務表に反映しますか？`))return;
-      rememberRoster(x.title);if(x.j!==undefined){state.grid[x.i][x.d]='O';state.grid[x.j][x.d]=x.shift;}else{state.grid[x.i][x.d]=x.shift;if(x.shift==='N')state.grid[x.i][x.d+1]='A';}state.suggestionWarning=null;state.generated=true;markUnsaved();render();
+      rememberRoster(x.title);if(x.j!==undefined){state.grid[x.i][x.d]='O';state.grid[x.j][x.d]=x.shift;if(x.nightSwap){state.grid[x.i][x.d+1]='O';state.grid[x.j][x.d+1]='A';}}else{state.grid[x.i][x.d]=x.shift;if(x.shift==='N')state.grid[x.i][x.d+1]='A';}state.suggestionWarning=null;state.generated=true;markUnsaved();render();
     }));
   }
   function renderStats(warns){
@@ -572,9 +596,32 @@
     menu.querySelector('[aria-checked="true"]')?.focus();
   }
   function closeShiftMenu(){if(state.activeCell?.button)state.activeCell.button.setAttribute('aria-expanded','false');$('shiftMenu').classList.add('hidden');state.activeCell=null;}
+  function exportPayload(){cacheCurrentMonth();return {format:'kango-no8-v1',current:monthKey(),months:monthCache};}
+  function validatePayload(data){
+    if(!data||data.format!=='kango-no8-v1'||!data.months||typeof data.months!=='object'||Array.isArray(data.months)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(data.current)||!data.months[data.current])throw Error('対応していないデータです');
+    for(const [key,snap] of Object.entries(data.months)){
+      if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(key)||!snap||!Array.isArray(snap.grid)||!Array.isArray(snap.staff)||snap.staff.length!==staffBaseline.length||snap.grid.length!==snap.staff.length)throw Error('勤務表の形式が正しくありません');
+      const [y,m]=key.split('-').map(Number),days=new Date(y,m,0).getDate();
+      if(snap.staff.some((x,i)=>x.id!==staffBaseline[i].id||x.name!==staffBaseline[i].name||x.role!==staffBaseline[i].role||!Array.isArray(x.offs)||x.offs.some(n=>!Number.isInteger(n)||n<1||n>days))||snap.grid.some(row=>!Array.isArray(row)||row.length!==days||row.some(v=>!['D','R','N','A','O','X'].includes(v))))throw Error('職員または勤務表の内容が正しくありません');
+    }
+    return data;
+  }
+  function applyImported(data){validatePayload(data);localStorage.setItem(STORAGE_KEY,JSON.stringify({current:data.current,months:data.months}));location.reload();}
+  function downloadData(){const blob=new Blob([JSON.stringify(exportPayload(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='勤務表バックアップ.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  let cloudSession=null;
+  function cloudConfig(){const url=$('cloudUrl').value.trim().replace(/\/$/,''),key=$('cloudKey').value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||!key||key.startsWith('sb_secret_'))throw Error('正しいプロジェクト URL と公開可能キーを入力してください');if(key.split('.').length===3){try{const payload=JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(payload.role==='service_role')throw Error('管理者キーは使用できません');}catch(e){if(e.message==='管理者キーは使用できません')throw e;}}return {url,key};}
+  async function cloudRequest(path,options={}){const {url,key}=cloudConfig(),headers={'apikey':key,'Content-Type':'application/json',...(cloudSession?{'Authorization':`Bearer ${cloudSession.access_token}`}:{}) ,...(options.headers||{})};const r=await fetch(url+path,{...options,headers});if(!r.ok){const error=await r.text();throw Error(`接続できませんでした (${r.status}) ${error.slice(0,160)}`);}const body=await r.text();return body?JSON.parse(body):null;}
+  function cloudButtons(){for(const id of ['cloudSave','cloudLoad','cloudLogout'])$(id).disabled=!cloudSession;$('cloudLogin').disabled=!!cloudSession;}
+  async function cloudAction(action){try{
+    if(action==='login'){cloudSession=await cloudRequest('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('cloudEmail').value,password:$('cloudPassword').value})});$('cloudPassword').value='';localStorage.setItem('no8CloudConfig',JSON.stringify(cloudConfig()));cloudButtons();$('cloudStatus').textContent='ログインしました。';}
+    if(action==='save'){const data=exportPayload();await cloudRequest('/rest/v1/no8_user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:cloudSession.user.id,payload:data})});$('cloudStatus').textContent='クラウドに保存しました。';}
+    if(action==='load'){const rows=await cloudRequest('/rest/v1/no8_user_data?select=payload&user_id=eq.'+encodeURIComponent(cloudSession.user.id));if(!rows.length)throw Error('保存されたデータがありません');validatePayload(rows[0].payload);if(confirm('クラウドのデータでこのブラウザの勤務表を置き換えますか？'))applyImported(rows[0].payload);}
+  }catch(e){$('cloudStatus').textContent=e.message;}}
   function bind(){
     const setView=view=>{state.view=view;render();window.scrollTo({top:0,behavior:'smooth'});};
     $('scheduleTab').addEventListener('click',()=>setView('schedule'));$('requestTab').addEventListener('click',()=>setView('requests'));$('reviewRequestSchedule').addEventListener('click',()=>setView('schedule'));$('workCheckTab').addEventListener('click',()=>setView('workCheck'));
+    $('exportData').addEventListener('click',downloadData);$('importData').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw Error('ファイルが大きすぎます');const data=validatePayload(JSON.parse(await f.text()));if(confirm('現在の全月データを読み込んだ内容で置き換えますか？'))applyImported(data);}catch(err){alert('読み込めませんでした：'+err.message);}finally{e.target.value='';}});
+    $('cloudOpen').addEventListener('click',()=>{try{const c=JSON.parse(localStorage.getItem('no8CloudConfig')||'{}');$('cloudUrl').value=c.url||'';$('cloudKey').value=c.key||'';}catch(e){}$('cloudDialog').showModal();});$('cloudClose').addEventListener('click',()=>$('cloudDialog').close());$('cloudLogin').addEventListener('click',()=>cloudAction('login'));$('cloudSave').addEventListener('click',()=>cloudAction('save'));$('cloudLoad').addEventListener('click',()=>cloudAction('load'));$('cloudLogout').addEventListener('click',()=>{cloudSession=null;cloudButtons();$('cloudStatus').textContent='ログアウトしました。';});
     $('saveBtn').addEventListener('click',saveCurrentState);$('undoBtn').addEventListener('click',undoRoster);
     $('personalCsvBtn').addEventListener('click',exportPersonalCsv);
     $('personalPrintBtn').addEventListener('click',()=>{renderPersonal();window.print();});
@@ -595,13 +642,13 @@
     $('clearRequestDays').addEventListener('click',()=>{if(state.month===10)setRequestDays([]);});
     $('applyRequestDays').addEventListener('click',applyRequestDays);
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('shiftMenu').classList.contains('hidden')){const button=state.activeCell?.button;closeShiftMenu();button?.focus();}});
-    const changePeriod=()=>{closeShiftMenu();state.warningFocus=null;state.suggestionWarning=null;state.warningFilter='all';state.warningLimit=8;cacheCurrentMonth();state.year=Number($('yearSelect').value);state.month=Number($('monthSelect').value);state.days=new Date(state.year,state.month,0).getDate();const snapshot=monthCache[monthKey()];if(snapshot)restoreSnapshot(snapshot);else{staff.splice(0,staff.length,...staffBaseline.map(x=>({...x,offs:[...x.offs]})));applyControls(sampleControls);state.grid=initialGrid();state.generated=false;state.dirty=false;}markUnsaved();render();};
+    const changePeriod=()=>{closeShiftMenu();state.warningFocus=null;state.suggestionWarning=null;state.warningFilter='all';state.warningLimit=8;cacheCurrentMonth();state.year=Number($('yearSelect').value);state.month=Number($('monthSelect').value);state.days=new Date(state.year,state.month,0).getDate();const snapshot=monthCache[monthKey()];if(snapshot)restoreSnapshot(snapshot);else{staff.splice(0,staff.length,...staffBaseline.map(x=>({...x,offs:[...x.offs]})));applyControls(sampleControls);state.grid=initialGrid();priorAtCreation=priorSignature();state.generated=false;state.dirty=false;}markUnsaved();render();};
     $('yearSelect').addEventListener('change',changePeriod);$('monthSelect').addEventListener('change',changePeriod);
     ['dayNeed','nightNeed','streakLimit','balanceHours','balanceNights','respectOffs','avoidAfterNight','leaderRequired','nightLeaderRequired'].forEach(id=>$(id).addEventListener('change',()=>{state.dirty=true;markUnsaved();render();}));
     $('generateBtn').addEventListener('click',generate);
     $('resetBtn').addEventListener('click',()=>{$('resetDialog').showModal();$('cancelResetBtn').focus();});
     $('cancelResetBtn').addEventListener('click',()=>{$('resetDialog').close();$('resetBtn').focus();});
-    $('confirmResetBtn').addEventListener('click',()=>{$('resetDialog').close();state.warningFocus=null;state.warningFilter='all';state.warningLimit=8;state.requestDrafts={};state.requestStaffIndex=0;state.undoByMonth={};try{localStorage.removeItem(STORAGE_KEY);}catch(e){}monthCache={};staff.splice(0,staff.length,...staffBaseline.map(x=>({...x,offs:[...x.offs]})));applyControls(sampleControls);state.year=2026;state.month=10;$('yearSelect').value='2026';$('monthSelect').value='10';state.days=31;seedSampleMonths();state.grid=initialGrid();state.generated=false;state.dirty=false;hasSavedState=false;showSaveStatus('初期状態・未保存',true);render();});
+    $('confirmResetBtn').addEventListener('click',()=>{$('resetDialog').close();state.warningFocus=null;state.warningFilter='all';state.warningLimit=8;state.requestDrafts={};state.requestStaffIndex=0;state.undoByMonth={};try{localStorage.removeItem(STORAGE_KEY);}catch(e){}monthCache={};staff.splice(0,staff.length,...staffBaseline.map(x=>({...x,offs:[...x.offs]})));applyControls(sampleControls);state.year=2026;state.month=10;$('yearSelect').value='2026';$('monthSelect').value='10';state.days=31;seedSampleMonths();state.grid=initialGrid();priorAtCreation=priorSignature();state.generated=false;state.dirty=false;hasSavedState=false;showSaveStatus('初期状態・未保存',true);render();});
   }
   loadSavedState();bind();render();
 })();
