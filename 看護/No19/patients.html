@@ -1,10 +1,40 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>患者DB｜看護_No.19</title><link rel="stylesheet" href="style.css"><script defer src="data.js?v=20261022-09"></script><script defer src="catalog.js?v=20261022-09"></script><script defer src="store.js?v=20261022-09"></script><script defer src="patients.js?v=20261022-09"></script></head>
-<body><header><div class="brand"><span class="logo">＋</span><div>看護・介護<span class="sub">記録確認サポート</span></div></div><span class="chip">No.19</span><a href="index.html" id="back-main">← 比較・確認へ戻る</a></header>
-<main><div class="title"><div><p class="eyebrow">PATIENT DATABASE</p><h1>患者DB</h1><p class="lead">患者の基本情報をまとめて管理します。</p></div><button id="new-patient">＋ 新しい患者</button></div>
-<p class="storage-note">このブラウザ内に保存され、他端末・他の利用者とは共有されません。画面には架空の患者情報を登録してください。</p>
-<p id="db-message" role="status" class="message"></p>
-<section class="panel"><div class="sectionhead"><h2>患者一覧 <span id="patient-count"></span></h2><span class="muted">基本情報を編集しても、評価・記録との紐付けは保たれます。</span></div><div class="tablewrap"><table class="patient-table"><thead><tr><th>患者名</th><th>患者ID</th><th>病棟／病室</th><th>操作</th></tr></thead><tbody id="patient-list"></tbody></table></div></section>
-<section class="panel db-editor"><h2 id="editor-title">新しい患者を追加</h2><p class="muted">新規患者の評価・記録は空欄から始まります。</p>
-<form id="patient-form" class="patient-form"><label>患者名<input id="patient-name" maxlength="40" required placeholder="患者名を入力"></label><label>ふりがな（任意）<input id="patient-kana" maxlength="80" placeholder="名前の読みを入力"><span class="muted">ひらがな・カタカナの名前の照合に使います。</span></label><label>患者ID<input id="patient-id" maxlength="30" pattern="[A-Za-z0-9_-]+" required><span class="muted">半角英数字・ハイフン・アンダーバー</span></label><label>病棟／病室（任意）<input id="patient-room" maxlength="80" placeholder="病棟名・病室"></label><div class="patient-form-actions"><button type="submit">保存する</button><button type="button" id="cancel-edit" class="secondary">入力を取り消す</button></div></form></section>
-<footer>看護_No.19 · 患者DB<span>外部API・本番システム連携なし</span></footer></main></body></html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>患者DB｜看護_No.19</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="patients.css?v=20261030-01">
+<script defer src="data.js?v=20261022-09"></script>
+<script defer src="catalog.js?v=20261022-09"></script>
+<script defer src="store.js?v=20261022-09"></script>
+<script defer src="patients.js?v=20261030-01"></script>
+</head>
+<body>
+<header><div class="brand"><span class="logo">＋</span><div>看護・介護<span class="sub">記録確認サポート</span></div></div><span class="chip">No.19</span><a href="index.html" id="back-main">← 比較・確認へ戻る</a></header>
+<main>
+  <div class="title"><div><p class="eyebrow">PATIENT DATABASE</p><h1>患者DB</h1><p class="lead">患者の基本情報をまとめて管理します。</p></div><button id="new-patient">＋ 新しい患者</button></div>
+  <p class="storage-note">このブラウザ内に保存され、他端末・他の利用者とは共有されません。画面には架空の患者情報を登録してください。</p>
+  <p id="db-message" role="status" class="message"></p>
+  <section class="panel"><div class="sectionhead"><h2>患者一覧 <span id="patient-count"></span></h2><span class="muted">基本情報を編集しても、評価・記録との紐付けは保たれます。</span></div><div class="tablewrap"><table class="patient-table"><thead><tr><th>患者名</th><th>患者ID</th><th>病棟／病室</th><th>操作</th></tr></thead><tbody id="patient-list"></tbody></table></div></section>
+  <section class="panel patient-import">
+    <div class="sectionhead"><div><h2>患者情報をCSVから取り込む</h2><p class="muted">一覧をまとめて登録できます。患者名・患者IDは必須、ふりがな・病棟・病室は任意です。</p></div><a id="patient-template" class="secondary-link" download="患者DB_取込ひな形.csv">CSVひな形をダウンロード</a></div>
+    <div class="patient-import-body">
+      <label class="upload-label">患者情報のCSVを選択（UTF-8・Shift_JIS／1MBまで）<input id="patient-csv" type="file" accept=".csv,text/csv"></label>
+      <p class="muted">患者IDが既存またはCSV内で重複している場合は、登録前に確認できます。取り込んだ患者の評価・記録は空欄から始まります。</p>
+      <p id="patient-import-status" role="status" aria-live="polite" class="message"></p>
+      <div id="patient-import-preview" hidden>
+        <div class="patient-import-summary" id="patient-import-summary"></div>
+        <div class="tablewrap"><table class="patient-table"><thead><tr><th>患者名</th><th>患者ID</th><th>ふりがな</th><th>病棟／病室</th><th>確認</th></tr></thead><tbody id="patient-import-rows"></tbody></table></div>
+        <div class="patient-import-actions"><button id="patient-import-confirm" type="button" disabled>確認した患者を登録</button><button id="patient-import-cancel" type="button" class="secondary">取り消す</button></div>
+      </div>
+    </div>
+  </section>
+  <section class="panel db-editor"><h2 id="editor-title">新しい患者を追加</h2><p class="muted">1人ずつ登録する場合はこちら。新規患者の評価・記録は空欄から始まります。</p>
+    <form id="patient-form" class="patient-form"><label>患者名<input id="patient-name" maxlength="40" required placeholder="患者名を入力"></label><label>ふりがな（任意）<input id="patient-kana" maxlength="80" placeholder="名前の読みを入力"><span class="muted">ひらがな・カタカナの名前の照合に使います。</span></label><label>患者ID<input id="patient-id" maxlength="30" pattern="[A-Za-z0-9_-]+" required><span class="muted">半角英数字・ハイフン・アンダーバー</span></label><label>病棟／病室（任意）<input id="patient-room" maxlength="80" placeholder="病棟名・病室"></label><div class="patient-form-actions"><button type="submit">保存する</button><button type="button" id="cancel-edit" class="secondary">入力を取り消す</button></div></form>
+  </section>
+  <footer>看護_No.19 · 患者DB<span>外部API・本番システム連携なし</span></footer>
+</main>
+</body>
+</html>
